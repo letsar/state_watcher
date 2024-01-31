@@ -29,3 +29,5 @@ doc/api/
 examples/ios/
 
 .vscode/settings.json
+
+.DS_Store

@@ -108,6 +108,10 @@ For a more detailed documentation hit the official site: // TODO.
 
 ## DevTools
 
+**state_watcher** has a DevTools extension allowing you to easily debug the state changes in your app and see which is the state responsible for a widget to rebuild.
+
+[![DevTools extension][devtools_extension]]
+
 
 <!-- Links -->
 [github_action_build_badge]: https://github.com/letsar/state_watcher/workflows/Build/badge.svg
@@ -120,3 +124,4 @@ For a more detailed documentation hit the official site: // TODO.
 [codecov_badge]: https://codecov.io/gh/letsar/state_watcher/graph/badge.svg?token=OCDC7QXE0B
 [issue]: https://github.com/letsar/state_watcher/issues
 [pr]: https://github.com/letsar/state_watcher/pulls
+[devtools_extension]: https://raw.githubusercontent.com/letsar/state_watcher/main/resources/images/devtools_extension.png
