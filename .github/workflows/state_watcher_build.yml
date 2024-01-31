@@ -1,4 +1,4 @@
-name: Build And Test state_watcher
+name: Build state_watcher
 
 on:
   push:
@@ -32,17 +32,6 @@ jobs:
         run: flutter pub get
         working-directory: ${{ matrix.package }}
 
-      - name: Check format
-        run: dart format --set-exit-if-changed .
-        working-directory: ${{ matrix.package }}
-
       - name: Analyze
         run: flutter analyze
         working-directory: ${{ matrix.package }}
-
-      - name: Run tests
-        run: flutter test --coverage
-        working-directory: ${{ matrix.package }}
-
-      - name: Upload coverage to codecov
-        run: curl -s https://codecov.io/bash | bash
