@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sanity_check:
+    runs-on: ubuntu-latest
+  
+    strategy:
+      matrix:
+        package:
+          - packages/state_watcher
+          - examples
+        channel:
+          - stable
+          - beta
+          - master
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: ${{ matrix.channel }}
+
+      - name: Removing example folder
+        run: rm -rf example
+        working-directory: ${{ matrix.package }}
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ${{ matrix.package }}
+
+      - name: Check format
+        run: dart format --set-exit-if-changed .
+        working-directory: ${{ matrix.package }}
+
+      - name: Analyze
+        run: flutter analyze
+        working-directory: ${{ matrix.package }}
+
+      - name: Run tests
+        run: flutter test --coverage
+        working-directory: ${{ matrix.package }}
+
+      - name: Upload coverage to codecov
+        run: curl -s https://codecov.io/bash | bash
