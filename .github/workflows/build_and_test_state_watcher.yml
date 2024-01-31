@@ -1,4 +1,4 @@
-name: Build
+name: Build And Test state_watcher
 
 on:
   push:
@@ -12,7 +12,6 @@ jobs:
       matrix:
         package:
           - packages/state_watcher
-          - examples
         channel:
           - stable
           - beta
