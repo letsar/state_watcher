@@ -1,4 +1,4 @@
-name: Test state_watcher
+name: Test
 
 on:
   push:

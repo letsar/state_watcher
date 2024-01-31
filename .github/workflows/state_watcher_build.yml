@@ -1,4 +1,4 @@
-name: Build state_watcher
+name: Build
 
 on:
   push:

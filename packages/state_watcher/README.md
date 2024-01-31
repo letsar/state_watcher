@@ -1,3 +1,8 @@
+[![Build][github_action_build_badge]][github_action_build]
+[![Test][github_action_test_badge]][github_action_test]
+[![Codecov][codecov_badge]][codecov]
+[![Pub][pub_badge]][pub]
+
 # state_watcher
 A simple, yet powerful reactive state management solution for Flutter applications
 
@@ -102,3 +107,16 @@ For a more detailed documentation hit the official site: // TODO.
 
 
 ## DevTools
+
+
+<!-- Links -->
+[github_action_build_badge]: https://github.com/letsar/state_watcher/workflows/Build/badge.svg
+[github_action_build]: https://github.com/letsar/state_watcher/actions/workflows/state_watcher_build.yml
+[github_action_test_badge]: https://github.com/letsar/state_watcher/workflows/Test/badge.svg
+[github_action_test]: https://github.com/letsar/state_watcher/actions/workflows/state_watcher_test.yml
+[pub_badge]: https://img.shields.io/pub/v/state_watcher.svg
+[pub]: https://pub.dartlang.org/packages/state_watcher
+[codecov]: https://codecov.io/gh/letsar/state_watcher
+[codecov_badge]: https://codecov.io/gh/letsar/state_watcher/graph/badge.svg?token=OCDC7QXE0B
+[issue]: https://github.com/letsar/state_watcher/issues
+[pr]: https://github.com/letsar/state_watcher/pulls
