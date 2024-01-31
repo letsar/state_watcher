@@ -1,0 +1,24 @@
+name: state_watcher
+description: "A simple, yet powerful reactive state management solution for Flutter applications."
+version: 0.0.1
+repository:  https://github.com/letsar/state_watcher
+homepage: https://github.com/letsar/state_watcher
+
+topics:
+  - state-management
+  - state
+  - reactive
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  collection: ^1.18.0
+  flutter:
+    sdk: flutter
+  meta: ^1.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

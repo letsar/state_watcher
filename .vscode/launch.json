@@ -1,0 +1,64 @@
+{
+    "configurations": [
+        {
+            "name": "examples",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/main.dart"
+        },
+        {
+            "name": "counter",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/counter/main.dart"
+        },
+        {
+            "name": "todos",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/todos/main.dart"
+        },
+        {
+            "name": "user_devices",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/user_devices/main.dart"
+        },
+        {
+            "name": "conditional_watch",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/conditional_watch/main.dart"
+        },
+        {
+            "name": "shopper",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/shopper/main.dart"
+        },
+        {
+            "name": "pub",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "examples",
+            "program": "lib/pub/main.dart"
+        },
+        {
+            "name": "devtools extension in simulated env",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "packages/state_watcher_devtools_extension",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=use_simulated_environment=true"
+            ]
+        }
+       
+    ]
+}

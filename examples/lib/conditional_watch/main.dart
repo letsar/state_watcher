@@ -1,0 +1,203 @@
+import 'package:flutter/material.dart';
+import 'package:state_watcher/state_watcher.dart';
+
+final _refCounterA = Variable((_) => 0, debugName: 'counterA');
+final _refCounterB = Variable((_) => 0, debugName: 'counterB');
+final _refCounterX = Variable((_) => _refCounterA, debugName: 'counterX');
+final _refAppStateLogic = Variable((_) => AppStateLogic());
+
+class AppStateLogic with StateLogic {
+  AppStateLogic();
+
+  void setCounterRef(Variable<int> ref) {
+    write(_refCounterX, ref);
+  }
+
+  void incrementCounter(Variable<int> refToCounter) {
+    update(refToCounter, (x) => x + 1);
+  }
+}
+
+void main() {
+  runApp(const ConditionalWatchApp());
+}
+
+class ConditionalWatchApp extends StatelessWidget {
+  const ConditionalWatchApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StateScope(
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(title),
+      ),
+      body: const Column(
+        children: [
+          Expanded(
+            flex: 1,
+            child: _Counters(),
+          ),
+          Expanded(
+            flex: 2,
+            child: _CurrentCounter(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Counters extends StatelessWidget {
+  const _Counters();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: _SelectableCounter(
+            refCounter: _refCounterA,
+          ),
+        ),
+        Expanded(
+          child: _SelectableCounter(
+            refCounter: _refCounterB,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SelectableCounter extends WatcherStatelessWidget {
+  const _SelectableCounter({
+    required this.refCounter,
+  });
+
+  final Variable<int> refCounter;
+
+  static final _refBackgroundColor = Computed.withParameter(
+    (watch, Variable<int> refCounter) {
+      final refCurrentCounter = watch(_refCounterX);
+      return refCurrentCounter == refCounter
+          ? Colors.green
+          : Colors.transparent;
+    },
+  );
+
+  @override
+  Widget build(BuildContext context, BuildScope scope) {
+    return GestureDetector(
+      onTap: () {
+        scope.read(_refAppStateLogic).setCounterRef(refCounter);
+      },
+      child: StateWatcher(
+        builder: (context, scope) {
+          final backgroundColor = scope.watch(_refBackgroundColor(refCounter));
+
+          return ColoredBox(
+            color: backgroundColor,
+            child: Center(
+              child: _Counter(
+                refCounter: refCounter,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _Counter extends StatelessWidget {
+  const _Counter({
+    required this.refCounter,
+  });
+
+  final Variable<int> refCounter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _CounterText(
+          refCounter: refCounter,
+        ),
+        const SizedBox(height: 16),
+        _CounterIncrementButton(
+          refCounter: refCounter,
+        ),
+      ],
+    );
+  }
+}
+
+class _CounterText extends WatcherStatelessWidget {
+  const _CounterText({
+    required this.refCounter,
+  });
+
+  final Ref<int> refCounter;
+
+  @override
+  Widget build(BuildContext context, BuildScope scope) {
+    return Text(
+      '${scope.watch(refCounter)}',
+      style: Theme.of(context).textTheme.displayLarge!.copyWith(
+            color: Colors.black87,
+          ),
+    );
+  }
+}
+
+class _CounterIncrementButton extends WatcherStatelessWidget {
+  const _CounterIncrementButton({
+    required this.refCounter,
+  });
+
+  final Variable<int> refCounter;
+
+  @override
+  Widget build(BuildContext context, BuildScope scope) {
+    return ElevatedButton(
+      onPressed: () {
+        scope.read(_refAppStateLogic).incrementCounter(refCounter);
+      },
+      child: const Icon(Icons.add),
+    );
+  }
+}
+
+class _CurrentCounter extends WatcherStatelessWidget {
+  const _CurrentCounter();
+
+  @override
+  Widget build(BuildContext context, BuildScope scope) {
+    return _Counter(
+      refCounter: scope.watch(_refCounterX),
+    );
+  }
+}

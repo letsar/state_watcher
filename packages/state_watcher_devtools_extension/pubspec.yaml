@@ -1,0 +1,22 @@
+name: state_watcher_devtools_extension
+description: "Devtools extension for state_watcher."
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter  
+  cupertino_icons: ^1.0.2
+  devtools_extensions: ^0.0.13
+  devtools_app_shared: ^0.0.9
+  state_watcher:
+    path: ../state_watcher
+  vm_service: ^13.0.0
+
+dev_dependencies:
+
+flutter:
+  uses-material-design: true  
