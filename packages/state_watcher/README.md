@@ -3,7 +3,12 @@
 [![Codecov][codecov_badge]][codecov]
 [![Pub][pub_badge]][pub]
 
-# state_watcher
+<p align="center">
+  <img src="https://raw.githubusercontent.com/letsar/state_watcher/main/resources/images/logo_and_text.png" width="100%" alt="state_watcher logo" />
+</p>
+
+---
+
 A simple, yet powerful reactive state management solution for Flutter applications
 
 # Guide
