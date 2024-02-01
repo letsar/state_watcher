@@ -40,14 +40,14 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-Then in order to display the value of our counter, we need to get the store. We can do that in any widget, with a `StateWatcher`!
+Then in order to display the value of our counter, we need to get the store. We can do that in any widget, with a `WatcherBuilder`!
 
 ```dart
-StateWatcher(
+WatcherBuilder(
   builder: (BuildContext context, BuildStore store) {
-    // Thanks to the StateWatcher, we get the store from the nearest StateStore ancestor.
+    // Thanks to the WatcherBuilder, we get the store from the nearest StateStore ancestor.
     // With this store we can watch the state referenced by `refCounter`.
-    // Whenever the state changes, the builder of the StateWatcher will be called again.
+    // Whenever the state changes, the builder of the WatcherBuilder will be called again.
     final counter = store.watch(refCounter);
     return Text('$counter');
   },
@@ -55,7 +55,7 @@ StateWatcher(
 ```
 
 Now we need to be able to update the actual state, to do that we still need a store.
-We could create another `StateWatcher` and use the store to update the value, but it can be cumbersome to deal with builder widgets.
+We could create another `WatcherBuilder` and use the store to update the value, but it can be cumbersome to deal with builder widgets.
 Instead we will create a dedicated widget extending `WatcherStatelessWidget`!
 A `WatcherStatelessWidget` is like a `StatelessWidget` except it has a different signature for the build method, in which we can get the store:
 
@@ -65,7 +65,7 @@ class _IncrementButton extends WatcherStatelessWidget {
 
   @override
   Widget build(BuildContext context, BuildStore store) {
-    // As with StateWatcher we can get the store.
+    // As with WatcherBuilder we can get the store.
     return FloatingActionButton(
       tooltip: 'Increment',
       onPressed: () {

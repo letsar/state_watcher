@@ -3,16 +3,16 @@ import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/watcher_stateless_widget.dart';
 
 /// Signature for a function to build a widget when the state changes.
-typedef StateWatcherWidgetBuilder = Widget Function(
+typedef WatcherWidgetBuilder = Widget Function(
   BuildContext context,
   BuildStore store,
 );
 
-/// A widget which rebuilds its [builder] when the states associaited to the
+/// A widget which rebuilds its [builder] when the states associated to the
 /// refs observed in it, changes
-class StateWatcher extends WatcherStatelessWidget {
-  /// Creates a new [StateWatcher].
-  const StateWatcher({
+class WatcherBuilder extends WatcherStatelessWidget {
+  /// Creates a new [WatcherBuilder].
+  const WatcherBuilder({
     super.key,
     this.debugName,
     required this.builder,
@@ -22,7 +22,7 @@ class StateWatcher extends WatcherStatelessWidget {
   final String? debugName;
 
   /// Builds the widget.
-  final StateWatcherWidgetBuilder builder;
+  final WatcherWidgetBuilder builder;
 
   @override
   Widget build(BuildContext context, BuildStore store) {

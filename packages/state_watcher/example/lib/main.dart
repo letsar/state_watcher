@@ -40,9 +40,9 @@ class _MyHomePage extends StatelessWidget {
           children: <Widget>[
             const Text('You have pushed the button this many times:'),
 
-            // A StateWatcher is a widget that provides the nearest store to its
+            // A WatcherBuilder is a widget that provides the nearest store to its
             // builder.
-            StateWatcher(
+            WatcherBuilder(
               builder: (context, store) {
                 // Whenever the counter value changes, this builder will be
                 // called again.
@@ -58,7 +58,7 @@ class _MyHomePage extends StatelessWidget {
   }
 }
 
-// Instead of creating a StateWatcher every time, we can create a widget that
+// Instead of creating a WatcherBuilder every time, we can create a widget that
 // extends WatcherStatelessWidget.
 class _IncrementButton extends WatcherStatelessWidget {
   const _IncrementButton();

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:state_watcher/src/core/refs.dart';
 import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
-import 'package:state_watcher/src/widgets/state_watcher.dart';
+import 'package:state_watcher/src/widgets/watcher_builder.dart';
 import 'package:state_watcher/src/widgets/watcher_stateful_widget.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
         'should throw without a StateStore ancestor',
         (tester) async {
           final a = Variable((_) => 0);
-          final tree = StateWatcher(
+          final tree = WatcherBuilder(
             builder: (context, store) {
               store.watch(a);
               return const SizedBox();
@@ -28,7 +28,7 @@ void main() {
         (tester) async {
           final a = Variable((_) => 0);
           final tree = StateStore(
-            child: StateWatcher(
+            child: WatcherBuilder(
               builder: (context, store) {
                 store.watch(a);
                 return const SizedBox();
@@ -46,7 +46,7 @@ void main() {
         int buildCount = 0;
         late BuildStore buildStore;
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               buildStore = store;
               buildCount++;
@@ -73,7 +73,7 @@ void main() {
         int buildCount = 0;
         late BuildStore buildStore;
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               buildStore = store;
               buildCount++;
@@ -97,7 +97,7 @@ void main() {
           late BuildStore buildStore;
           final logs = <int>[];
           final tree = StateStore(
-            child: StateWatcher(
+            child: WatcherBuilder(
               builder: (context, store) {
                 buildStore = store;
                 return _Watcher(
@@ -120,7 +120,7 @@ void main() {
           late BuildStore buildStore;
           final logs = <int>[];
           final tree = StateStore(
-            child: StateWatcher(
+            child: WatcherBuilder(
               builder: (context, store) {
                 buildStore = store;
                 return _Watcher(
@@ -144,7 +144,7 @@ void main() {
         late BuildStore buildStore;
         final logs = <int>[];
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               buildStore = store;
               return _Watcher(
@@ -168,7 +168,7 @@ void main() {
       testWidgets('should throw if used when building', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               store.read(a);
               return const SizedBox();
@@ -182,7 +182,7 @@ void main() {
       testWidgets('should not throw if used in a callback ', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -203,7 +203,7 @@ void main() {
       testWidgets('should throw if used when building', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               store.write(a, 5);
               return const SizedBox();
@@ -217,7 +217,7 @@ void main() {
       testWidgets('should not throw if used in a callback ', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -238,7 +238,7 @@ void main() {
       testWidgets('should throw if used when building', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               store.update(a, (x) => x + 1);
               return const SizedBox();
@@ -252,7 +252,7 @@ void main() {
       testWidgets('should not throw if used in a callback ', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -273,7 +273,7 @@ void main() {
       testWidgets('should throw if used when building', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               store.delete(a);
               return const SizedBox();
@@ -287,7 +287,7 @@ void main() {
       testWidgets('should not throw if used in a callback ', (tester) async {
         final a = Variable((_) => 0);
         final tree = StateStore(
-          child: StateWatcher(
+          child: WatcherBuilder(
             builder: (context, store) {
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -322,10 +322,10 @@ class _Watcher extends WatcherStatefulWidget {
   final List<int> logs;
 
   @override
-  State<_Watcher> createState() => __WatcherState();
+  State<_Watcher> createState() => _WatcherState();
 }
 
-class __WatcherState extends State<_Watcher> {
+class _WatcherState extends State<_Watcher> {
   @override
   Widget build(BuildContext context) {
     final sum = store.watch(_computedWithParam(widget.add));

@@ -4,7 +4,7 @@ import 'package:state_watcher/src/core/refs.dart';
 import 'package:state_watcher/src/core/state_observer.dart';
 import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
-import 'package:state_watcher/src/widgets/state_watcher.dart';
+import 'package:state_watcher/src/widgets/watcher_builder.dart';
 
 void main() {
   group('StateStore', () {
@@ -14,7 +14,7 @@ void main() {
         late int va;
         int buildCount = 0;
 
-        final watcher = StateWatcher(
+        final watcher = WatcherBuilder(
           builder: (context, store) {
             buildCount++;
             va = store.watch(a);
@@ -48,7 +48,7 @@ void main() {
         final a = Variable<int>.undefined();
         int buildCount = 0;
         late int va;
-        final watcher = StateWatcher(
+        final watcher = WatcherBuilder(
           builder: (context, store) {
             buildCount++;
             va = store.watch(a);
@@ -84,7 +84,7 @@ void main() {
         int buildCount = 0;
         late int va;
         late BuildStore buildStore;
-        final watcher = StateWatcher(
+        final watcher = WatcherBuilder(
           builder: (context, store) {
             buildStore = store;
             buildCount++;
@@ -126,7 +126,7 @@ void main() {
         late int va;
         int buildCount = 0;
 
-        final watcher = StateWatcher(
+        final watcher = WatcherBuilder(
           builder: (context, store) {
             buildCount++;
             va = store.watch(a);
@@ -158,7 +158,7 @@ void main() {
     group('Observers', () {
       testWidgets('should be called when state changes', (tester) async {
         late BuildStore buildStore;
-        final watcher = StateWatcher(
+        final watcher = WatcherBuilder(
           builder: (context, store) {
             buildStore = store;
             store.watch(a);
@@ -183,7 +183,7 @@ void main() {
 
       testWidgets('should correcly update observers', (tester) async {
         late BuildStore buildStore;
-        final watcher = StateWatcher(
+        final watcher = WatcherBuilder(
           builder: (context, store) {
             buildStore = store;
             store.watch(a);
@@ -241,7 +241,7 @@ void main() {
                 overrides: {
                   a.overrideWithValue(5),
                 },
-                child: StateWatcher(
+                child: WatcherBuilder(
                   builder: (context, store) {
                     store.watch(c);
                     return const SizedBox();

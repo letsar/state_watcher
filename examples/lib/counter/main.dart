@@ -42,7 +42,7 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            StateWatcher(
+            WatcherBuilder(
               builder: (context, store) {
                 return Text(
                   '${store.watch(_refCounter)}',

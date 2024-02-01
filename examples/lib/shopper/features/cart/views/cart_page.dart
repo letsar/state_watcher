@@ -112,7 +112,7 @@ class _CartTotal extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            StateWatcher(
+            WatcherBuilder(
               builder: (context, store) {
                 final totalPrice = store.watch(_refCartTotal);
                 return Text('\$$totalPrice', style: hugeStyle);

@@ -113,7 +113,7 @@ class _SelectableCounter extends WatcherStatelessWidget {
       onTap: () {
         store.read(_refAppStateLogic).setCounterRef(refCounter);
       },
-      child: StateWatcher(
+      child: WatcherBuilder(
         builder: (context, store) {
           final backgroundColor = store.watch(_refBackgroundColor(refCounter));
 
