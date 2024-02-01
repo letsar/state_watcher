@@ -3,10 +3,10 @@ import 'package:examples/user_devices/core/data/models/identifiable.dart';
 import 'package:meta/meta.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-abstract class Store<T extends Identifiable>
+abstract class Vault<T extends Identifiable>
     with StateLogic
     implements Loadable {
-  Store(this.ref);
+  Vault(this.ref);
   final Variable<Map<int, T>> ref;
 
   Map<int, T> get state => read(ref);

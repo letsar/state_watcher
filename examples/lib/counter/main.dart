@@ -12,7 +12,7 @@ class CounterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StateScope(
+    return const StateStore(
       child: MaterialApp(
         home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
@@ -43,9 +43,9 @@ class MyHomePage extends StatelessWidget {
               'You have pushed the button this many times:',
             ),
             StateWatcher(
-              builder: (context, scope) {
+              builder: (context, store) {
                 return Text(
-                  '${scope.watch(_refCounter)}',
+                  '${store.watch(_refCounter)}',
                   style: Theme.of(context).textTheme.headlineMedium,
                 );
               },
@@ -62,11 +62,11 @@ class _IncrementButton extends WatcherStatelessWidget {
   const _IncrementButton();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return FloatingActionButton(
       tooltip: 'Increment',
       onPressed: () {
-        scope.update(_refCounter, (x) => x + 1);
+        store.update(_refCounter, (x) => x + 1);
       },
       child: const Icon(Icons.add),
     );

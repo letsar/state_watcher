@@ -18,23 +18,23 @@ class DevToolsPage extends StatefulWidget {
 }
 
 class _DevToolsPageState extends State<DevToolsPage> {
-  Scope? scope;
+  Store? store;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    scope ??= initScope();
+    store ??= initStore();
   }
 
-  Scope initScope() {
-    final scope = StateScope.of(context, listen: false);
-    unawaited(scope.read(refGlobalState).init());
-    return scope;
+  Store initStore() {
+    final store = StateStore.of(context, listen: false);
+    unawaited(store.read(refGlobalState).init());
+    return store;
   }
 
   @override
   void dispose() {
-    scope?.delete(refGlobalState);
+    store?.delete(refGlobalState);
     super.dispose();
   }
 

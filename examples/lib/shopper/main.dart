@@ -37,7 +37,7 @@ class ShopperApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StateScope(
+    return StateStore(
       child: MaterialApp.router(
         title: 'Provider Demo',
         theme: appTheme,

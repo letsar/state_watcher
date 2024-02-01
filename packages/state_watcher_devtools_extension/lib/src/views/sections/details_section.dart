@@ -28,12 +28,12 @@ class _ToggleTrackingDependenciesButton extends WatcherStatelessWidget {
   const _ToggleTrackingDependenciesButton();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final isSelected = scope.watch(refTrackDependencies);
+  Widget build(BuildContext context, BuildStore store) {
+    final isSelected = store.watch(refTrackDependencies);
     return DevToolsToggleButton(
       icon: Icons.lan_outlined,
       onPressed: () {
-        scope.update(refTrackDependencies, (oldValue) => !oldValue);
+        store.update(refTrackDependencies, (oldValue) => !oldValue);
       },
       isSelected: isSelected,
       outlined: false,
@@ -46,13 +46,13 @@ class _DetailsSectionTitle extends WatcherStatelessWidget {
   const _DetailsSectionTitle();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final node = scope.watch(refSelectedNode);
+  Widget build(BuildContext context, BuildStore store) {
+    final node = store.watch(refSelectedNode);
 
     if (node == null) {
       return const Text('Details');
     } else {
-      return StateScope(
+      return StateStore(
         overrides: {
           _refCurrentNode.overrideWithValue(node),
         },
@@ -66,8 +66,8 @@ class _SelectedNodePanel extends WatcherStatelessWidget {
   const _SelectedNodePanel();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final node = scope.watch(refSelectedNode);
+  Widget build(BuildContext context, BuildStore store) {
+    final node = store.watch(refSelectedNode);
 
     return node == null
         ? const Center(
@@ -75,7 +75,7 @@ class _SelectedNodePanel extends WatcherStatelessWidget {
               'Select an item in the States panel to view its details',
             ),
           )
-        : StateScope(
+        : StateStore(
             overrides: {
               _refCurrentNode.overrideWithValue(node),
             },
@@ -115,7 +115,7 @@ class _NodeName extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -123,20 +123,20 @@ class _NodeName extends WatcherStatelessWidget {
         const SizedBox(width: 4),
         Flexible(
           child: Text(
-            scope.watch(refNodeTitle(_refCurrentNode)),
+            store.watch(refNodeTitle(_refCurrentNode)),
             overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: 4),
         Text(
-          scope.watch(_refNodeId),
+          store.watch(_refNodeId),
           style: const TextStyle(
             fontSize: 12,
             color: Colors.grey,
           ),
         ),
         const SizedBox(width: 4),
-        const _Scope(),
+        const _Store(),
       ],
     );
   }
@@ -152,8 +152,8 @@ class _Chip extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final nodeType = scope.watch(_nodeType);
+  Widget build(BuildContext context, BuildStore store) {
+    final nodeType = store.watch(_nodeType);
     return DecoratedBox(
       decoration: ShapeDecoration(
         shape: const StadiumBorder(),
@@ -183,8 +183,8 @@ class _ValueOrLocation extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final isWatcher = scope.watch(_refIsWatcher);
+  Widget build(BuildContext context, BuildStore store) {
+    final isWatcher = store.watch(_refIsWatcher);
 
     return isWatcher ? const _Location() : const _Value();
   }
@@ -201,14 +201,14 @@ class _Value extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         const Text('Value:'),
         Text(
-          scope.watch(_refValue),
+          store.watch(_refValue),
         ),
       ],
     );
@@ -224,8 +224,8 @@ class _Location extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final location = scope.watch(_refLocation);
+  Widget build(BuildContext context, BuildStore store) {
+    final location = store.watch(_refLocation);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,21 +238,21 @@ class _Location extends WatcherStatelessWidget {
   }
 }
 
-class _Scope extends WatcherStatelessWidget {
-  const _Scope();
+class _Store extends WatcherStatelessWidget {
+  const _Store();
 
-  static final _refScopeId = Computed(
+  static final _refStoreId = Computed(
     (watch) {
       final node = watch(_refCurrentNode);
-      return node.scopeId;
+      return node.storeId;
     },
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final scopeId = scope.watch(_refScopeId);
+  Widget build(BuildContext context, BuildStore store) {
+    final storeId = store.watch(_refStoreId);
     return Text(
-      'Scope: #$scopeId',
+      'Store: #$storeId',
       style: const TextStyle(
         fontSize: 12,
         color: Colors.grey,

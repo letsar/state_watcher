@@ -1,7 +1,7 @@
-import 'package:examples/user_devices/devices/data/device_store.dart';
+import 'package:examples/user_devices/devices/data/device_vault.dart';
 import 'package:examples/user_devices/devices/data/models/device.dart';
 import 'package:examples/user_devices/users/data/models/user.dart';
-import 'package:examples/user_devices/users/data/user_store.dart';
+import 'package:examples/user_devices/users/data/user_vault.dart';
 import 'package:state_watcher/state_watcher.dart';
 
 final refDeviceAssignment = Variable((_) => DeviceAssigmentStateLogic());
@@ -9,20 +9,20 @@ final refDeviceAssignment = Variable((_) => DeviceAssigmentStateLogic());
 class DeviceAssigmentStateLogic with StateLogic {
   DeviceAssigmentStateLogic();
 
-  UserStore get _userStore => read(refUserStore);
-  DeviceStore get _deviceStore => read(refDeviceStore);
+  UserVault get _userVault => read(refUserVault);
+  DeviceVault get _deviceVault => read(refDeviceVault);
 
   /// Assign the device with this [deviceId] to the user with this [userId].
   void assign(int deviceId, int userId) {
-    final User user = _userStore.get(userId);
-    final Device device = _deviceStore.get(deviceId);
+    final User user = _userVault.get(userId);
+    final Device device = _deviceVault.get(deviceId);
 
     if (device.ownerId case final ownerId?) {
       // The device was assigned to another user before.
       // After the assignment, it should only by assigned to one person only.
-      final User owner = _userStore.get(ownerId);
+      final User owner = _userVault.get(ownerId);
       final User newOwner = owner.newDeviceIds((l) => l..remove(deviceId));
-      _userStore.overwrite(newOwner);
+      _userVault.overwrite(newOwner);
     }
 
     // We change the owner of the device.
@@ -32,7 +32,7 @@ class DeviceAssigmentStateLogic with StateLogic {
     final User newUser = user.newDeviceIds((l) => l..add(deviceId));
 
     // We persist the data.
-    _userStore.overwrite(newUser);
-    _deviceStore.overwrite(newDevice);
+    _userVault.overwrite(newUser);
+    _deviceVault.overwrite(newDevice);
   }
 }

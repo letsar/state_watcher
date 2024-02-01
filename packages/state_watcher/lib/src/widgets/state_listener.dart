@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:state_watcher/src/core/refs.dart';
-import 'package:state_watcher/src/widgets/build_scope.dart';
+import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/watcher_stateless_widget.dart';
 
 /// Signature for a function when a state changes.
@@ -32,9 +32,9 @@ class StateListener<T> extends WatcherStatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return ValueListener<T>(
-      value: scope.watch(ref),
+      value: store.watch(ref),
       updateShouldNotify: ref.updateShouldNotify,
       onStateChanged: onStateChanged,
       child: child,

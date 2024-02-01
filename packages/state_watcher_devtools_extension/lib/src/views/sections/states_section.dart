@@ -78,8 +78,8 @@ class NodeCount extends WatcherStatelessWidget {
   static final _nodeCount = Computed((watch) => watch(_refNodeList).length);
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final count = scope.watch(_nodeCount);
+  Widget build(BuildContext context, BuildStore store) {
+    final count = store.watch(_nodeCount);
     return Text(
       '$count',
       style: const TextStyle(color: Colors.grey),
@@ -91,14 +91,14 @@ class _NodeList extends WatcherStatelessWidget {
   const _NodeList();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final nodes = scope.watch(_refNodeList);
+  Widget build(BuildContext context, BuildStore store) {
+    final nodes = store.watch(_refNodeList);
 
     return ListView.builder(
       itemCount: nodes.length,
       itemBuilder: (context, index) {
         final node = nodes[index];
-        return StateScope(
+        return StateStore(
           overrides: {
             _refCurrentNode.overrideWithValue(node),
           },
@@ -113,7 +113,7 @@ class _Filter extends WatcherStatelessWidget {
   const _Filter();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: SizedBox(
@@ -121,7 +121,7 @@ class _Filter extends WatcherStatelessWidget {
         child: DevToolsClearableTextField(
           hintText: 'Filter',
           onChanged: (value) {
-            scope.write(_refFilter, value);
+            store.write(_refFilter, value);
           },
         ),
       ),
@@ -139,9 +139,9 @@ class _NodeItem extends WatcherStatelessWidget {
   const _NodeItem();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final node = scope.watch(_refCurrentNode);
-    final isSelected = scope.watch(_refIsSelectedNode);
+  Widget build(BuildContext context, BuildStore store) {
+    final node = store.watch(_refCurrentNode);
+    final isSelected = store.watch(_refIsSelectedNode);
 
     return ListTile(
       dense: true,
@@ -149,7 +149,7 @@ class _NodeItem extends WatcherStatelessWidget {
       leading: const _RefIcon(),
       title: const _RefTileTitle(),
       onTap: () {
-        scope.read(refDevtoolsPageLogic).selectNode(node);
+        store.read(refDevtoolsPageLogic).selectNode(node);
       },
     );
   }
@@ -174,8 +174,8 @@ class _RefIcon extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final icon = scope.watch(_refIcon);
+  Widget build(BuildContext context, BuildStore store) {
+    final icon = store.watch(_refIcon);
     return icon;
   }
 }
@@ -191,20 +191,20 @@ class _RefTileTitle extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
           child: Text(
-            scope.watch(refNodeTitle(_refCurrentNode)),
+            store.watch(refNodeTitle(_refCurrentNode)),
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12),
           ),
         ),
         const SizedBox(width: 4),
         Text(
-          scope.watch(_refNodeId),
+          store.watch(_refNodeId),
           style: const TextStyle(
             fontSize: 12,
             color: Colors.grey,

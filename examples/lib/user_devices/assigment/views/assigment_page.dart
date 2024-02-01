@@ -1,10 +1,10 @@
 import 'package:examples/common/widgets/loader.dart';
 import 'package:examples/user_devices/assigment/device_assignment.dart';
 import 'package:examples/user_devices/assigment/fake_connection_status_handler.dart';
-import 'package:examples/user_devices/devices/data/device_store.dart';
+import 'package:examples/user_devices/devices/data/device_vault.dart';
 import 'package:examples/user_devices/devices/data/models/device.dart';
 import 'package:examples/user_devices/users/data/models/user.dart';
-import 'package:examples/user_devices/users/data/user_store.dart';
+import 'package:examples/user_devices/users/data/user_vault.dart';
 import 'package:flutter/material.dart';
 import 'package:state_watcher/state_watcher.dart';
 
@@ -36,8 +36,8 @@ class AssignmentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Loader(
       refs: [
-        refUserStore,
-        refDeviceStore,
+        refUserVault,
+        refDeviceVault,
         refConnectionStatusHandler,
       ],
       child: const Scaffold(
@@ -122,14 +122,14 @@ class _Users extends WatcherStatelessWidget {
   const _Users();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final List<User> users = scope.watch(refUserMap).values.toList();
+  Widget build(BuildContext context, BuildStore store) {
+    final List<User> users = store.watch(refUserMap).values.toList();
 
     return SliverFixedExtentList(
       itemExtent: 120,
       delegate: SliverChildBuilderDelegate(
         (context, index) {
-          return StateScope(
+          return StateStore(
             overrides: {
               refCurrentUser.overrideWithValue(users[index]),
             },
@@ -146,12 +146,12 @@ class _UnassignedDevices extends WatcherStatelessWidget {
   const _UnassignedDevices();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final devices = scope.watch(refUnassignedDevices);
+  Widget build(BuildContext context, BuildStore store) {
+    final devices = store.watch(refUnassignedDevices);
 
     return DecoratedBox(
       decoration: const BoxDecoration(color: Colors.white),
-      child: StateScope(
+      child: StateStore(
         overrides: {
           refCurrentDeviceList.overrideWithValue(devices),
         },
@@ -165,14 +165,14 @@ class _DeviceList extends WatcherStatelessWidget {
   const _DeviceList();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final devices = scope.watch(refCurrentDeviceList);
+  Widget build(BuildContext context, BuildStore store) {
+    final devices = store.watch(refCurrentDeviceList);
 
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: devices.length,
       itemBuilder: (context, index) {
-        return StateScope(
+        return StateStore(
           overrides: {
             refCurrentDevice.overrideWithValue(devices[index]),
           },
@@ -193,8 +193,8 @@ class _Device extends WatcherStatelessWidget {
   const _Device();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final status = scope.watch(refDeviceStatus);
+  Widget build(BuildContext context, BuildStore store) {
+    final status = store.watch(refDeviceStatus);
 
     final Widget item = _Item(
       backgroundColor: status.connected ? Colors.green : Colors.grey,
@@ -217,10 +217,10 @@ class _Assignments extends WatcherStatelessWidget {
   const _Assignments();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final devices = scope.watch(refAssignedCurrentUserDevices);
+  Widget build(BuildContext context, BuildStore store) {
+    final devices = store.watch(refAssignedCurrentUserDevices);
 
-    return StateScope(
+    return StateStore(
       overrides: {
         refCurrentDeviceList.overrideWithValue(devices),
       },
@@ -250,9 +250,9 @@ class _UserAvatar extends WatcherStatelessWidget {
   const _UserAvatar();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final connected = scope.watch(refUserIsConnected);
-    final initials = scope.watch(refUserInitials);
+  Widget build(BuildContext context, BuildStore store) {
+    final connected = store.watch(refUserIsConnected);
+    final initials = store.watch(refUserInitials);
 
     final Widget child = _Item(
       text: initials,
@@ -261,12 +261,12 @@ class _UserAvatar extends WatcherStatelessWidget {
 
     return DragTarget<int>(
       onWillAcceptWithDetails: (details) {
-        return !scope.read(refCurrentUser).deviceIds.contains(details.data);
+        return !store.read(refCurrentUser).deviceIds.contains(details.data);
       },
       onAcceptWithDetails: (details) {
-        scope
+        store
             .read(refDeviceAssignment)
-            .assign(details.data, scope.read(refCurrentUser).id);
+            .assign(details.data, store.read(refCurrentUser).id);
       },
       builder: (context, candidateData, rejectedData) {
         return child;

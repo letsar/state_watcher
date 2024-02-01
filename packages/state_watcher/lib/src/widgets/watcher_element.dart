@@ -2,22 +2,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:state_watcher/src/core/refs.dart';
-import 'package:state_watcher/src/widgets/build_scope.dart';
-import 'package:state_watcher/src/widgets/state_scope.dart';
+import 'package:state_watcher/src/widgets/build_store.dart';
+import 'package:state_watcher/src/widgets/state_store.dart';
 
 @internal
 mixin WatcherElement on ComponentElement {
   final Set<Ref<Object?>> _dependencies = {};
   String? get debugName;
 
-  late final BuildScope buildScope = _BuildScope(this);
+  late final BuildStore buildStore = _BuildStore(this);
 
-  ScopeContext? _scope;
-  ScopeContext? get scope => _scope;
-  set scope(ScopeContext? newScope) {
-    if (newScope != _scope) {
-      _scope?.delete(computed);
-      _scope = newScope;
+  StoreNode? _store;
+  StoreNode? get store => _store;
+  set store(StoreNode? newStore) {
+    if (newStore != _store) {
+      _store?.delete(computed);
+      _store = newStore;
     }
   }
 
@@ -75,13 +75,13 @@ mixin WatcherElement on ComponentElement {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    scope = dependOnParentScope(this);
+    store = dependOnParentStore(this);
   }
 
   @override
   void unmount() {
     _dependencies.clear();
-    _scope?.delete(computed);
+    _store?.delete(computed);
     super.unmount();
   }
 
@@ -93,13 +93,13 @@ mixin WatcherElement on ComponentElement {
     final result = super.build();
 
     /// We need to read the computed value to register the dependencies.
-    _scope?.refresh(computed);
+    _store?.refresh(computed);
     return result;
   }
 }
 
-class _BuildScope implements BuildScope {
-  _BuildScope(this.element);
+class _BuildStore implements BuildStore {
+  _BuildStore(this.element);
 
   final WatcherElement element;
 
@@ -109,42 +109,42 @@ class _BuildScope implements BuildScope {
       element.debugDoingBuild,
       'Cannot watch the state outside of the build method.',
     );
-    final scope = element.scope ??= dependOnParentScope(element);
+    final store = element.store ??= dependOnParentStore(element);
     element._dependencies.add(ref);
-    return scope.read(ref);
+    return store.read(ref);
   }
 
   @override
   bool hasStateFor<T>(Ref<T> ref) {
-    return fetchScope('hasStateFor').hasStateFor(ref);
+    return fetchStore('hasStateFor').hasStateFor(ref);
   }
 
   @override
   T read<T>(Ref<T> ref) {
-    return fetchScope('read').read(ref);
+    return fetchStore('read').read(ref);
   }
 
   @override
   void write<T>(Variable<T> ref, T value) {
-    return fetchScope('write').write(ref, value);
+    return fetchStore('write').write(ref, value);
   }
 
   @override
   void update<T>(Variable<T> ref, Updater<T> update) {
-    return fetchScope('update').update(ref, update);
+    return fetchStore('update').update(ref, update);
   }
 
   @override
   void delete<T>(Ref<T> ref) {
-    return fetchScope('delete').delete(ref);
+    return fetchStore('delete').delete(ref);
   }
 
-  Scope fetchScope(String methodName) {
+  Store fetchStore(String methodName) {
     assert(
       !element.debugDoingBuild,
-      'The scope.$methodName method cannot be called during build',
+      'The store.$methodName method cannot be called during build',
     );
-    final scope = element.scope ?? StateScope.of(element, listen: false);
-    return scope;
+    final store = element.store ?? StateStore.of(element, listen: false);
+    return store;
   }
 }

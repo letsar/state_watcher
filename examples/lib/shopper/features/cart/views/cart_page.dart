@@ -54,14 +54,14 @@ class CartPage extends StatelessWidget {
 
 class _CartList extends WatcherStatelessWidget {
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final cart = scope.watch(refCart).toList();
+  Widget build(BuildContext context, BuildStore store) {
+    final cart = store.watch(refCart).toList();
 
     return ListView.builder(
         itemCount: cart.length,
         itemBuilder: (context, index) {
           final productId = cart[index];
-          return StateScope(
+          return StateStore(
             overrides: {
               _refCurrentProductId.overrideWithValue(productId),
             },
@@ -79,17 +79,17 @@ class _CartItemTile extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     final itemNameStyle = Theme.of(context).textTheme.titleLarge;
-    final productName = scope.watch(_refProductName);
+    final productName = store.watch(_refProductName);
 
     return ListTile(
       leading: const Icon(Icons.done),
       trailing: IconButton(
         icon: const Icon(Icons.remove_circle_outline),
         onPressed: () {
-          final productId = scope.read(_refCurrentProductId);
-          scope.read(refCartPageLogic).removeProductFromCart(productId);
+          final productId = store.read(_refCurrentProductId);
+          store.read(refCartPageLogic).removeProductFromCart(productId);
         },
       ),
       title: Text(
@@ -113,8 +113,8 @@ class _CartTotal extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StateWatcher(
-              builder: (context, scope) {
-                final totalPrice = scope.watch(_refCartTotal);
+              builder: (context, store) {
+                final totalPrice = store.watch(_refCartTotal);
                 return Text('\$$totalPrice', style: hugeStyle);
               },
             ),

@@ -8,9 +8,9 @@ import 'package:state_watcher/src/core/state_observer.dart';
 
 import 'disposable.dart';
 
-part 'scope_context.dart';
 part 'state_inspector.dart';
 part 'state_logic.dart';
+part 'store_node.dart';
 
 /// Signature for determining whether [a] and [b] are different.
 typedef AreDifferent<T> = bool Function(T a, T b);
@@ -75,7 +75,7 @@ sealed class Ref<T> {
   /// We need to create the node from the ref because we want to keep the type
   /// [T]. Otherwise we would get the type passed to the method used to create
   /// the node.
-  Node<T> _createNode(ScopeContext scope);
+  Node<T> _createNode(StoreNode store);
 
   /// The name used in debugging tools to identify this [Ref].
   String get debugName => metadata.debugName.toString();
@@ -116,7 +116,7 @@ class Variable<T> extends Ref<T> {
   /// Creates a new [Variable] which undefined value.
   ///
   /// This is useful when you want to create a [Variable] that will be defined
-  /// later, through an override in a scope.
+  /// later, through an override in a store.
   Variable.undefined({
     String? debugName,
     bool? autoDispose,
@@ -137,7 +137,7 @@ class Variable<T> extends Ref<T> {
         super(id: metadata);
 
   /// Creates a new [Variable] with the given value, used to override the
-  /// value of this [Variable] in a scope.
+  /// value of this [Variable] in a store.
   Variable<T> overrideWithValue(T value) {
     return Variable._fromMetadata(
       (_) => value,
@@ -148,7 +148,7 @@ class Variable<T> extends Ref<T> {
   }
 
   /// Creates a new [Variable] with the given creation funciton, used to
-  /// override the creation of this [Variable] in a scope.
+  /// override the creation of this [Variable] in a store.
   Variable<T> overrideWith(T Function(Reader read) create) {
     return Variable._fromMetadata(
       create,
@@ -161,8 +161,8 @@ class Variable<T> extends Ref<T> {
   T Function(Reader read) _create;
 
   @override
-  Node<T> _createNode(ScopeContext scope) {
-    return VariableNode<T>(this, scope);
+  Node<T> _createNode(StoreNode store) {
+    return VariableNode<T>(this, store);
   }
 }
 
@@ -276,8 +276,8 @@ class Computed<T> extends Ref<T> {
   final T Function(Reader watch) _compute;
 
   @override
-  Node<T> _createNode(ScopeContext scope) {
-    return ComputedNode<T>(this, scope);
+  Node<T> _createNode(StoreNode store) {
+    return ComputedNode<T>(this, store);
   }
 
   /// Creates an object that can be used to create a [Computed] with a
@@ -303,20 +303,20 @@ Never _undefinedVariable(Reader read) {
 typedef Updater<T> = T Function(T oldValue);
 
 /// A container of states.
-abstract class Scope {
-  /// Indicates whether [ref] has a value inside this [Scope].
+abstract class Store {
+  /// Indicates whether [ref] has a value inside this [Store].
   bool hasStateFor<T>(Ref<T> ref);
 
-  /// Reads the value of [ref] from this [Scope].
+  /// Reads the value of [ref] from this [Store].
   T read<T>(Ref<T> ref);
 
-  /// Writes the [value] associated with [ref] in this [Scope].
+  /// Writes the [value] associated with [ref] in this [Store].
   void write<T>(Variable<T> ref, T value);
 
-  /// Updates the value associated with [ref] in this [Scope] using the
+  /// Updates the value associated with [ref] in this [Store] using the
   /// [updater].
   void update<T>(Variable<T> ref, Updater<T> update);
 
-  /// Deletes the value associated with [ref] from this [Scope].
+  /// Deletes the value associated with [ref] from this [Store].
   void delete<T>(Ref<T> ref);
 }

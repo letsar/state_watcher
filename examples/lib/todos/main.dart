@@ -14,7 +14,7 @@ class TodosApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StateScope(
+    return StateStore(
       observers: const [MyObserver()],
       child: MaterialApp(
         theme: ThemeData(
@@ -31,21 +31,21 @@ class MyObserver extends StateObserver {
   const MyObserver();
 
   @override
-  void didStateCreated<T>(Scope scope, Ref<T> ref, T value) {
+  void didStateCreated<T>(Store store, Ref<T> ref, T value) {
     if (kDebugMode) {
       print('[MyObserver] didStateCreated: $ref with value: $value}');
     }
   }
 
   @override
-  void didStateUpdated<T>(Scope scope, Ref<T> ref, T oldValue, T newValue) {
+  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue) {
     if (kDebugMode) {
       print('[MyObserver] didStateUpdated: $ref: from $oldValue to $newValue');
     }
   }
 
   @override
-  void didStateDeleted<T>(Scope scope, Ref<T> ref) {
+  void didStateDeleted<T>(Store store, Ref<T> ref) {
     if (kDebugMode) {
       print('[MyObserver] didStateUpdated: $ref');
     }

@@ -22,7 +22,7 @@ In **state_watcher**, such a state is declared by a `Variable`:
 final refCounter = Variable((_) => 0);
 ```
 
-The actual state is stored in something called a **Scope**. For that, in Flutter, we can declare a new scope, in the widget tree, with a `StateScope` widget:
+The actual state is stored in something called a **Store**. For that, in Flutter, we can declare a new store, in the widget tree, with a `StateStore` widget:
 
 ```dart
 class MyApp extends StatelessWidget {
@@ -30,8 +30,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The root scope can be declared just above the MaterialApp, so that it can be accessed from anywhere in the application.
-    return const StateScope(
+    // The root store can be declared just above the MaterialApp, so that it can be accessed from anywhere in the application.
+    return const StateStore(
       child: MaterialApp(
         home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
@@ -40,37 +40,37 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-Then in order to display the value of our counter, we need to get the scope. We can do that in any widget, with a `StateWatcher`!
+Then in order to display the value of our counter, we need to get the store. We can do that in any widget, with a `StateWatcher`!
 
 ```dart
 StateWatcher(
-  builder: (BuildContext context, BuildScope scope) {
-    // Thanks to the StateWatcher, we get the scope from the nearest StateScope ancestor.
-    // With this scope we can watch the state referenced by `refCounter`.
+  builder: (BuildContext context, BuildStore store) {
+    // Thanks to the StateWatcher, we get the store from the nearest StateStore ancestor.
+    // With this store we can watch the state referenced by `refCounter`.
     // Whenever the state changes, the builder of the StateWatcher will be called again.
-    final counter = scope.watch(refCounter);
+    final counter = store.watch(refCounter);
     return Text('$counter');
   },
 ),
 ```
 
-Now we need to be able to update the actual state, to do that we still need a scope.
-We could create another `StateWatcher` and use the scope to update the value, but it can be cumbersome to deal with builder widgets.
+Now we need to be able to update the actual state, to do that we still need a store.
+We could create another `StateWatcher` and use the store to update the value, but it can be cumbersome to deal with builder widgets.
 Instead we will create a dedicated widget extending `WatcherStatelessWidget`!
-A `WatcherStatelessWidget` is like a `StatelessWidget` except it has a different signature for the build method, in which we can get the scope:
+A `WatcherStatelessWidget` is like a `StatelessWidget` except it has a different signature for the build method, in which we can get the store:
 
 ```dart
 class _IncrementButton extends WatcherStatelessWidget {
   const _IncrementButton();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    // As with StateWatcher we can get the scope.
+  Widget build(BuildContext context, BuildStore store) {
+    // As with StateWatcher we can get the store.
     return FloatingActionButton(
       tooltip: 'Increment',
       onPressed: () {
         // We can then use the update method to changes the UI.
-        scope.update(refCounter, (x) => x + 1);
+        store.update(refCounter, (x) => x + 1);
       },
       child: const Icon(Icons.add),
     );
@@ -98,8 +98,8 @@ class _DivisibleByThree extends WatcherStatelessWidget {
   const _DivisibleByThree();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final divisibleByThree = scope.watch(refDivisibleByThree);
+  Widget build(BuildContext context, BuildStore store) {
+    final divisibleByThree = store.watch(refDivisibleByThree);
     return Text('$divisibleByThree');
   }
 }

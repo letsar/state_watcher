@@ -27,7 +27,7 @@ class ConditionalWatchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StateScope(
+    return StateStore(
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -108,14 +108,14 @@ class _SelectableCounter extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return GestureDetector(
       onTap: () {
-        scope.read(_refAppStateLogic).setCounterRef(refCounter);
+        store.read(_refAppStateLogic).setCounterRef(refCounter);
       },
       child: StateWatcher(
-        builder: (context, scope) {
-          final backgroundColor = scope.watch(_refBackgroundColor(refCounter));
+        builder: (context, store) {
+          final backgroundColor = store.watch(_refBackgroundColor(refCounter));
 
           return ColoredBox(
             color: backgroundColor,
@@ -163,9 +163,9 @@ class _CounterText extends WatcherStatelessWidget {
   final Ref<int> refCounter;
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return Text(
-      '${scope.watch(refCounter)}',
+      '${store.watch(refCounter)}',
       style: Theme.of(context).textTheme.displayLarge!.copyWith(
             color: Colors.black87,
           ),
@@ -181,10 +181,10 @@ class _CounterIncrementButton extends WatcherStatelessWidget {
   final Variable<int> refCounter;
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return ElevatedButton(
       onPressed: () {
-        scope.read(_refAppStateLogic).incrementCounter(refCounter);
+        store.read(_refAppStateLogic).incrementCounter(refCounter);
       },
       child: const Icon(Icons.add),
     );
@@ -195,9 +195,9 @@ class _CurrentCounter extends WatcherStatelessWidget {
   const _CurrentCounter();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return _Counter(
-      refCounter: scope.watch(_refCounterX),
+      refCounter: store.watch(_refCounterX),
     );
   }
 }

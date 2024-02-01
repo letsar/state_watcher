@@ -19,7 +19,7 @@ class Node {
     required this.isCustomName,
     required this.refType,
     required this.valueType,
-    required this.scopeId,
+    required this.storeId,
     required this.dependencyIds,
     required this.value,
     required this.location,
@@ -30,7 +30,7 @@ class Node {
   final String refType;
   final String valueType;
   final String debugName;
-  final String scopeId;
+  final String storeId;
   final Set<String> dependencyIds;
   final String value;
   final String? location;
@@ -43,7 +43,7 @@ class Node {
       isCustomName: isCustomName,
       refType: refType,
       valueType: valueType,
-      scopeId: scopeId,
+      storeId: storeId,
       dependencyIds: dependencyIds,
       value: value,
       location: location,
@@ -57,7 +57,7 @@ class Node {
       isCustomName: isCustomName,
       refType: refType,
       valueType: valueType,
-      scopeId: scopeId,
+      storeId: storeId,
       dependencyIds: dependencyIds,
       value: value,
       location: location,
@@ -83,8 +83,8 @@ NodeType _nodeTypeFromRefTypeAndLocation(String refType, String? location) {
   };
 }
 
-class Scope {
-  const Scope({
+class Store {
+  const Store({
     required this.id,
     required this.debugName,
   });

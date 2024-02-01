@@ -45,8 +45,8 @@ class _LogPanel extends WatcherStatelessWidget {
   const _LogPanel();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final logs = scope.watch(_refLogs);
+  Widget build(BuildContext context, BuildStore store) {
+    final logs = store.watch(_refLogs);
     return _LogViewer(
       logs: logs,
     );
@@ -57,13 +57,13 @@ class _ClearLogsButton extends WatcherStatelessWidget {
   const _ClearLogsButton();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return DevToolsButton.iconOnly(
       icon: Icons.clear,
       tooltip: 'Clear logs',
       outlined: false,
       onPressed: () {
-        scope.update(refAllLogs, (oldValue) => const []);
+        store.update(refAllLogs, (oldValue) => const []);
       },
     );
   }
@@ -88,7 +88,7 @@ class _LogViewer extends StatelessWidget {
       itemCount: logs.length,
       itemBuilder: (context, index) {
         final log = logs[index];
-        return StateScope(
+        return StateStore(
           key: ValueKey(index),
           overrides: {
             _refCurrentLog.overrideWithValue(log),
@@ -142,8 +142,8 @@ class _LogTypeIcon extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final icon = scope.watch(_refIcon);
+  Widget build(BuildContext context, BuildStore store) {
+    final icon = store.watch(_refIcon);
     return icon;
   }
 }
@@ -159,9 +159,9 @@ class _LogId extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return Text(
-      scope.watch(_refNodeId),
+      store.watch(_refNodeId),
       style: const TextStyle(
         fontSize: 12,
         color: Colors.grey,
@@ -181,8 +181,8 @@ class _LogMessage extends WatcherStatelessWidget {
   const _LogMessage();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final message = scope.watch(_refLogMessage);
+  Widget build(BuildContext context, BuildStore store) {
+    final message = store.watch(_refLogMessage);
     return Text(
       message,
       style: const TextStyle(fontSize: 12),
@@ -199,8 +199,8 @@ class _Tooltip extends WatcherStatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final message = scope.watch(_refLogMessage);
+  Widget build(BuildContext context, BuildStore store) {
+    final message = store.watch(_refLogMessage);
     return DevToolsTooltip(
       message: message,
       child: child,

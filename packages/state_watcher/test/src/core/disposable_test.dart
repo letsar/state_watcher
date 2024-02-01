@@ -9,12 +9,12 @@ void main() {
       disposed = true;
     });
 
-    final scope = ScopeContext();
+    final store = StoreNode();
 
     final refVariable = Variable((_) => disposable);
-    scope.read(refVariable);
+    store.read(refVariable);
     expect(disposed, false);
-    scope.delete(refVariable);
+    store.delete(refVariable);
     expect(disposed, true);
   });
 }

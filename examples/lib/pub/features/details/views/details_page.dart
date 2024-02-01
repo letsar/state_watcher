@@ -28,10 +28,10 @@ class DetailsPage extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final package = scope.watch(_refPackage(packageName));
+  Widget build(BuildContext context, BuildStore store) {
+    final package = store.watch(_refPackage(packageName));
 
-    return StateScope(
+    return StateStore(
       overrides: {
         refDetailsPageLogic.overrideWith((read) {
           return DetailsPageLogic(
@@ -53,8 +53,8 @@ class _Body extends WatcherStatelessWidget {
   const _Body();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final package = scope.watch(_refCurrentPackage);
+  Widget build(BuildContext context, BuildStore store) {
+    final package = store.watch(_refCurrentPackage);
     final packageName = package.name;
     final packageVersion = package.latest.version;
     final packageDescription = package.latest.pubspec.description;
@@ -90,8 +90,8 @@ class _Likes extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final likeCount = scope.watch(_refLikeCount);
+  Widget build(BuildContext context, BuildStore store) {
+    final likeCount = store.watch(_refLikeCount);
 
     final widget = likeCount == null
         ? const CircularProgressIndicator()
@@ -124,8 +124,8 @@ class _Points extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final points = scope.watch(_refPoints);
+  Widget build(BuildContext context, BuildStore store) {
+    final points = store.watch(_refPoints);
 
     final widget = points == null
         ? const CircularProgressIndicator()
@@ -174,8 +174,8 @@ class _Popularity extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final popularity = scope.watch(_refPopularity);
+  Widget build(BuildContext context, BuildStore store) {
+    final popularity = store.watch(_refPopularity);
 
     final widget = popularity == null
         ? const CircularProgressIndicator()

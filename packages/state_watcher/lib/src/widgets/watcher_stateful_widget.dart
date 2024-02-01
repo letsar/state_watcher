@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:state_watcher/src/widgets/build_scope.dart';
+import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/watcher_element.dart';
 
 /// A [StatefulWidget] which can be used to watch the changes of [Ref]s.
@@ -27,7 +27,7 @@ class _WatcherStatefulElement extends StatefulElement with WatcherElement {
 /// Extensions for [State]s of [WatcherStatefulWidget]s.
 extension WatcherStatefulStateExtension<T extends WatcherStatefulWidget>
     on State<T> {
-  /// Gets the [BuildScope] of the closest [WatcherStatefulWidget] ancestor.
+  /// Gets the [BuildStore] of the closest [WatcherStatefulWidget] ancestor.
   @protected
-  BuildScope get scope => (context as WatcherElement).buildScope;
+  BuildStore get store => (context as WatcherElement).buildStore;
 }

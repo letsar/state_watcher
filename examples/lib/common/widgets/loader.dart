@@ -31,8 +31,8 @@ class _LoaderState extends State<Loader> {
   }
 
   Future<void> load() async {
-    final scope = StateScope.of(context, listen: false);
-    await Future.wait(widget.refs.map((x) => scope.read(x).load()));
+    final store = StateStore.of(context, listen: false);
+    await Future.wait(widget.refs.map((x) => store.read(x).load()));
   }
 
   @override

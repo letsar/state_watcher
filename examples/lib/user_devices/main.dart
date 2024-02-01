@@ -13,7 +13,7 @@ class UserDevicesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StateScope(
+    return StateStore(
       child: MaterialApp(
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

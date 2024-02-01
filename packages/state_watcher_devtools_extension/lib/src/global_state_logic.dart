@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:devtools_extensions/devtools_extensions.dart';
 import 'package:flutter/foundation.dart';
-import 'package:state_watcher/state_watcher.dart' hide Scope;
+import 'package:state_watcher/state_watcher.dart' hide Store;
 import 'package:state_watcher_devtools_extension/src/models.dart';
 
 const _prefix = 'ext.state_watcher';
 
 final refAllNodes = Variable((_) => <String, Node>{});
 
-final refAllScopes = Variable((_) => <String, Scope>{});
+final refAllStores = Variable((_) => <String, Store>{});
 
 final refAllLogs = Variable((_) => <LogItem>[]);
 
@@ -44,22 +44,22 @@ class GlobalStateLogic with StateLogic {
       );
       final items = (response.json?['nodes'] as List<Object?>?) ?? [];
       final nodes = <String, Node>{};
-      final scopes = <String, Scope>{};
+      final stores = <String, Store>{};
       for (final item in items) {
         final map = item! as Map<String, Object?>;
         final node = _createNodeFromData(map);
-        final scopeId = node.scopeId;
-        scopes.putIfAbsent(
-          scopeId,
-          () => Scope(
-            debugName: map['scopeDebugName']! as String,
-            id: scopeId,
+        final storeId = node.storeId;
+        stores.putIfAbsent(
+          storeId,
+          () => Store(
+            debugName: map['storeDebugName']! as String,
+            id: storeId,
           ),
         );
         nodes[node.id] = node;
       }
       write(refAllNodes, nodes);
-      write(refAllScopes, scopes);
+      write(refAllStores, stores);
     } catch (e) {
       debugPrint('Error fetching nodes: $e');
     }
@@ -81,15 +81,15 @@ class GlobalStateLogic with StateLogic {
   void _didStateCreated(Map<String, Object?> data) {
     final node = _createNodeFromData(data);
 
-    // Find the scope.
-    final scopeId = node.scopeId;
-    final scopeDebugName = data['scopeDebugName']! as String;
-    final allScopes = Map<String, Scope>.from(read(refAllScopes));
-    allScopes.putIfAbsent(
-      scopeId,
-      () => Scope(id: scopeId, debugName: scopeDebugName),
+    // Find the store.
+    final storeId = node.storeId;
+    final storeDebugName = data['storeDebugName']! as String;
+    final allStores = Map<String, Store>.from(read(refAllStores));
+    allStores.putIfAbsent(
+      storeId,
+      () => Store(id: storeId, debugName: storeDebugName),
     );
-    write(refAllScopes, allScopes);
+    write(refAllStores, allStores);
     final allNodes = Map<String, Node>.from(read(refAllNodes));
     allNodes[node.id] = node;
     write(refAllNodes, allNodes);
@@ -139,7 +139,7 @@ class GlobalStateLogic with StateLogic {
     final customName = data['customName']! as bool;
     final refType = data['refType']! as String;
     final valueType = data['valueType']! as String;
-    final scopeId = data['scopeId']! as String;
+    final storeId = data['storeId']! as String;
     final dependencies =
         (data['dependencies']! as List<Object?>).cast<String>();
     final value = data['value']! as String;
@@ -155,7 +155,7 @@ class GlobalStateLogic with StateLogic {
       isCustomName: customName,
       refType: refType,
       valueType: valueType,
-      scopeId: scopeId,
+      storeId: storeId,
       dependencyIds: dependencies.toSet(),
       value: value,
       location: location?.toString(),

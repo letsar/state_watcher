@@ -6,11 +6,11 @@ abstract class StateObserver {
   const StateObserver();
 
   /// Called when a [Ref] is created.
-  void didStateCreated<T>(Scope scope, Ref<T> ref, T value);
+  void didStateCreated<T>(Store store, Ref<T> ref, T value);
 
   /// Called when a [Ref] is updated.
-  void didStateUpdated<T>(Scope scope, Ref<T> ref, T oldValue, T newValue);
+  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue);
 
   /// Called when a [Ref] is deleted.
-  void didStateDeleted<T>(Scope scope, Ref<T> ref);
+  void didStateDeleted<T>(Store store, Ref<T> ref);
 }

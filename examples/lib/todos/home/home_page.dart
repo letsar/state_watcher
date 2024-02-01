@@ -53,7 +53,7 @@ class _HomeState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Todo> todos = scope.watch(refFilteredTodos);
+    final List<Todo> todos = store.watch(refFilteredTodos);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -68,7 +68,7 @@ class _HomeState extends State<HomePage> {
                 labelText: 'What needs to be done?',
               ),
               onSubmitted: (value) {
-                scope.read(refHomeStateLogic).add(value);
+                store.read(refHomeStateLogic).add(value);
                 textEditingController.clear();
               },
             ),
@@ -80,9 +80,9 @@ class _HomeState extends State<HomePage> {
               Dismissible(
                 key: ValueKey(todos[i].id),
                 onDismissed: (_) {
-                  scope.read(refHomeStateLogic).remove(todos[i].id);
+                  store.read(refHomeStateLogic).remove(todos[i].id);
                 },
-                child: StateScope(
+                child: StateStore(
                   overrides: {
                     refCurrentTodo.overrideWithValue(todos[i]),
                   },
@@ -119,8 +119,8 @@ class Toolbar extends WatcherStatelessWidget {
   const Toolbar({super.key});
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final int count = scope.watch(refUncompletedTodosCount);
+  Widget build(BuildContext context, BuildStore store) {
+    final int count = store.watch(refUncompletedTodosCount);
 
     return Material(
       child: Row(
@@ -174,13 +174,13 @@ class TodoFilterTab extends WatcherStatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final isSelected = scope.watch(_refIsSelected(filter));
+  Widget build(BuildContext context, BuildStore store) {
+    final isSelected = store.watch(_refIsSelected(filter));
 
     return Tooltip(
       message: tooltip,
       child: FilledButton(
-        onPressed: () => scope.read(refHomeStateLogic).filter = filter,
+        onPressed: () => store.read(refHomeStateLogic).filter = filter,
         child: Text(
           label,
           style: TextStyle(
@@ -225,7 +225,7 @@ class _TodoItemState extends State<TodoItem> {
 
   @override
   Widget build(BuildContext context) {
-    final Todo todo = scope.watch(refCurrentTodo);
+    final Todo todo = store.watch(refCurrentTodo);
     final isFocused = itemFocusNode.hasFocus;
 
     return Material(
@@ -237,7 +237,7 @@ class _TodoItemState extends State<TodoItem> {
           if (focused) {
             textEditingController.text = todo.description;
           } else {
-            scope.read(refHomeStateLogic).editTodo(
+            store.read(refHomeStateLogic).editTodo(
                   id: todo.id,
                   description: textEditingController.text,
                 );
@@ -252,7 +252,7 @@ class _TodoItemState extends State<TodoItem> {
           leading: Checkbox(
             value: todo.completed,
             onChanged: (value) {
-              scope.read(refHomeStateLogic).toggle(todo.id);
+              store.read(refHomeStateLogic).toggle(todo.id);
             },
           ),
           title: isFocused

@@ -28,7 +28,7 @@ class _SearchBar extends WatcherStatelessWidget implements PreferredSizeWidget {
   const _SearchBar();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
+  Widget build(BuildContext context, BuildStore store) {
     return SizedBox(
       height: 64,
       child: Center(
@@ -54,7 +54,7 @@ class _SearchBar extends WatcherStatelessWidget implements PreferredSizeWidget {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 onSubmitted: (value) {
-                  scope.read(refSearchPageLogic).searchPackages(value);
+                  store.read(refSearchPageLogic).searchPackages(value);
                 },
               ),
             ),
@@ -81,8 +81,8 @@ class _Body extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final data = scope.watch(_data);
+  Widget build(BuildContext context, BuildStore store) {
+    final data = store.watch(_data);
 
     return ListView.builder(
       itemCount: data.hasMore ? null : data.packages.length,
@@ -108,7 +108,7 @@ class _PackageState extends State<_Package> {
   @override
   void initState() {
     super.initState();
-    scope.read(refSearchPageLogic).loadPackage(widget.index);
+    store.read(refSearchPageLogic).loadPackage(widget.index);
   }
 
   static final _refPackage = Computed.withParameter((watch, int index) {
@@ -122,13 +122,13 @@ class _PackageState extends State<_Package> {
 
   @override
   Widget build(BuildContext context) {
-    final package = scope.watch(_refPackage(widget.index));
+    final package = store.watch(_refPackage(widget.index));
 
     if (package == null) {
       return const _PackageItemShimmer();
     }
 
-    return StateScope(
+    return StateStore(
       overrides: {
         _refCurrentPackage.overrideWithValue(package),
       },
@@ -150,8 +150,8 @@ class _PackageItem extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final data = scope.watch(_refData);
+  Widget build(BuildContext context, BuildStore store) {
+    final data = store.watch(_refData);
 
     final name = data.name;
     final version = data.version;

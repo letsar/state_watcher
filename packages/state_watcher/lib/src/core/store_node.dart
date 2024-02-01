@@ -1,10 +1,12 @@
 part of 'refs.dart';
 
 /// Object containing the actual states referenced by [Ref] instances.
+///
+/// Can have a parent store.
 @internal
-class ScopeContext extends Scope {
-  /// Creates a new [ScopeContext].
-  ScopeContext({
+class StoreNode extends Store {
+  /// Creates a new [StoreNode].
+  StoreNode({
     this.parent,
     Set<Ref<Object?>> overrides = const {},
     List<StateObserver> observers = const [],
@@ -14,11 +16,11 @@ class ScopeContext extends Scope {
         },
         _observers = observers,
         _nodes = {},
-        debugName = debugName ?? 'Scope';
+        debugName = debugName ?? 'Store';
 
   final String debugName;
-  final ScopeContext? parent;
-  final Set<ScopeContext> _dependents = {};
+  final StoreNode? parent;
+  final Set<StoreNode> _dependents = {};
   final Map<Object, Ref<Object?>> _overrides;
   final List<StateObserver> _observers;
   final Map<Object, Node<Object?>> _nodes;
@@ -151,7 +153,7 @@ class ScopeContext extends Scope {
   }
 
   Node<T> _fetchOrCreateNodeFromTree<T>(Ref<T> ref) {
-    // In case of an override, we always fetch the value from the scope where
+    // In case of an override, we always fetch the value from the store where
     // the override is defined.
     final override = _overrides[ref.id] as Ref<T>?;
     if (override != null) {
@@ -160,11 +162,11 @@ class ScopeContext extends Scope {
 
     final node = switch (ref) {
       // For a Variable the rule is to fetch the value from the
-      // root scope.
+      // root store.
       Variable<T>() => () {
           final parent = this.parent;
           if (parent == null) {
-            // We can get the value from this scope.
+            // We can get the value from this store.
             return _fetchOrCreateNode(ref);
           }
 
@@ -172,9 +174,9 @@ class ScopeContext extends Scope {
           return parent._fetchOrCreateNodeFromTree(ref);
         }(),
 
-      // For a Computed, we need to fetch the value from the nearest scope,
+      // For a Computed, we need to fetch the value from the nearest store,
       // because in case of dependency overrides, we need to get those values
-      // from the nearest scope.
+      // from the nearest store.
       Computed<T>() => _fetchOrCreateNode(ref),
     };
     return node;
@@ -182,7 +184,7 @@ class ScopeContext extends Scope {
 
   void _stateCreated<T>(Node<T> node) {
     for (final observer in _observers) {
-      observer.didStateCreated(node.scope, node.ref, node.value);
+      observer.didStateCreated(node.store, node.ref, node.value);
     }
     if (kDebugMode && parent == null) {
       StateInspector.instance.didStateCreated(node);
@@ -192,7 +194,7 @@ class ScopeContext extends Scope {
 
   void _stateUpdated<T>(Node<T> node, T oldValue, T newValue) {
     for (final observer in _observers) {
-      observer.didStateUpdated(node.scope, node.ref, oldValue, newValue);
+      observer.didStateUpdated(node.store, node.ref, oldValue, newValue);
     }
 
     parent?._stateUpdated(node, oldValue, newValue);
@@ -200,7 +202,7 @@ class ScopeContext extends Scope {
 
   void _stateDeleted<T>(Node<T> node) {
     for (final observer in _observers) {
-      observer.didStateDeleted(node.scope, node.ref);
+      observer.didStateDeleted(node.store, node.ref);
     }
     if (kDebugMode && parent == null) {
       StateInspector.instance.didStateDeleted(node);
@@ -210,7 +212,7 @@ class ScopeContext extends Scope {
 
   void dispose() {
     if (_dependents.isNotEmpty) {
-      throw ScopeHasDependentsError(this);
+      throw StoreHasDependentsError(this);
     }
 
     _disposing = true;
@@ -221,7 +223,7 @@ class ScopeContext extends Scope {
     final refs = _nodes.values.toList();
 
     // We can safely clear the node in any order because they can't have a
-    // dependent in a child scope.
+    // dependent in a child store.
     for (final ref in refs) {
       delete(ref.ref);
     }
@@ -230,11 +232,11 @@ class ScopeContext extends Scope {
 
 @internal
 abstract class Node<T> {
-  Node(this.scope)
+  Node(this.store)
       : _dependencies = {},
         _dependents = {};
 
-  final ScopeContext scope;
+  final StoreNode store;
 
   /// Nodes which this node depends on.
   final Set<Node<Object?>> _dependencies;
@@ -269,7 +271,7 @@ abstract class Node<T> {
     }
 
     if (shouldUpdateDependents) {
-      scope._stateUpdated(this, oldValue, newValue);
+      store._stateUpdated(this, oldValue, newValue);
       // We make a new list to avoid concurrent modification.
       final dependents = _dependents.toList();
       for (final dependent in dependents) {
@@ -290,7 +292,7 @@ abstract class Node<T> {
 
     if (!dependency.hasDependents && dependency.ref.autoDispose) {
       // If the dependency has no longer dependents, maybe we can remove from
-      // its scope.
+      // its store.
       dependency.detach();
     }
     return result;
@@ -316,7 +318,7 @@ abstract class Node<T> {
   void update();
 
   void detach() {
-    scope.delete(ref);
+    store.delete(ref);
   }
 
   void updateFromOverrides(
@@ -334,8 +336,8 @@ abstract class Node<T> {
       'refType': metadata.refType,
       'valueType': metadata.valueType,
       'customName': metadata.isCustomName,
-      'scopeId': scope.debugId,
-      'scopeDebugName': scope.debugName,
+      'storeId': store.debugId,
+      'storeDebugName': store.debugName,
       'dependencies': _dependencies.map((d) => d.debugId).toList(),
       'value': '$value',
       if (debugName is DebugName) ...{
@@ -349,7 +351,7 @@ abstract class Node<T> {
 
 @internal
 class VariableNode<T> extends Node<T> {
-  VariableNode(this.ref, super.scope);
+  VariableNode(this.ref, super.store);
 
   @override
   Variable<T> ref;
@@ -361,9 +363,9 @@ class VariableNode<T> extends Node<T> {
   }
 
   T _createValue(Variable<T> ref) {
-    final value = ref._create(scope.read);
+    final value = ref._create(store.read);
     if (value is StateLogic) {
-      value._init(scope);
+      value._init(store);
     }
     return value;
   }
@@ -390,7 +392,7 @@ class VariableNode<T> extends Node<T> {
 
 @internal
 class ComputedNode<T> extends Node<T> {
-  ComputedNode(this.ref, super.scope);
+  ComputedNode(this.ref, super.store);
 
   @override
   Computed<T> ref;
@@ -411,7 +413,7 @@ class ComputedNode<T> extends Node<T> {
     bool dependenciesChanged = false;
 
     X watch<X>(Ref<X> ref) {
-      final node = scope._fetchOrCreateNodeFromTree(ref);
+      final node = store._fetchOrCreateNodeFromTree(ref);
       dependenciesChanged |= addDependency(node);
       oldDependencies.remove(node);
       return node.value;
@@ -477,17 +479,17 @@ class HasDependentsError extends Error {
   HasDependentsError();
 }
 
-/// An error throw when a scope cannot be deleted because it has dependents.
-class ScopeHasDependentsError extends HasDependentsError {
-  /// Creates a new [ScopeHasDependentsError].
-  ScopeHasDependentsError(this.scope);
+/// An error throw when a store cannot be deleted because it has dependents.
+class StoreHasDependentsError extends HasDependentsError {
+  /// Creates a new [StoreHasDependentsError].
+  StoreHasDependentsError(this.store);
 
-  /// The scope which has dependents.
-  final ScopeContext scope;
+  /// The store which has dependents.
+  final StoreNode store;
 
   @override
   String toString() {
-    return 'Cannot delete $scope because it has dependents';
+    return 'Cannot delete $store because it has dependents';
   }
 }
 

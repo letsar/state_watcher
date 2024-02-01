@@ -4,52 +4,52 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:state_watcher/src/core/refs.dart';
 
 void main() {
-  group('Scope', () {
+  group('Store', () {
     group('[Variable]', () {
       test('should be able to be read', () {
-        final scope = ScopeContext();
+        final store = StoreNode();
         final a = Variable((_) => 4);
-        final va = scope.read(a);
+        final va = store.read(a);
 
         expect(va, equals(4));
       });
 
       test('should be able to be written', () {
-        final scope = ScopeContext();
+        final store = StoreNode();
         final a = Variable((_) => 4);
-        scope.write(a, 8);
-        final va = scope.read(a);
+        store.write(a, 8);
+        final va = store.read(a);
 
         expect(va, equals(8));
       });
 
-      test('should always be created in the highest scope', () {
-        final scope1 = ScopeContext();
-        final scope2 = ScopeContext(parent: scope1);
+      test('should always be created in the highest store', () {
+        final store1 = StoreNode();
+        final store2 = StoreNode(parent: store1);
         final a = Variable((_) => 4);
 
-        expect(scope2.read(a), equals(4));
-        scope1.write(a, 5);
-        expect(scope2.read(a), equals(5));
+        expect(store2.read(a), equals(4));
+        store1.write(a, 5);
+        expect(store2.read(a), equals(5));
       });
 
       test('undefined() should throws if read', () {
         final refVariable = Variable<int>.undefined();
-        final scope = ScopeContext();
-        expect(() => scope.read(refVariable), throwsStateError);
+        final store = StoreNode();
+        expect(() => store.read(refVariable), throwsStateError);
       });
 
       test('can be overriden with a value', () {
         final a = Variable((_) => 4);
-        final scope = ScopeContext(overrides: {a.overrideWithValue(3)});
-        final va = scope.read(a);
+        final store = StoreNode(overrides: {a.overrideWithValue(3)});
+        final va = store.read(a);
         expect(va, 3);
       });
 
       test('can be overriden with a function', () {
         final a = Variable((_) => 4);
-        final scope = ScopeContext(overrides: {a.overrideWith((_) => 3)});
-        final va = scope.read(a);
+        final store = StoreNode(overrides: {a.overrideWith((_) => 3)});
+        final va = store.read(a);
         expect(va, 3);
       });
     });
@@ -57,28 +57,28 @@ void main() {
     group('[Computed]', () {
       group('should be able to be read when', () {
         test('independent', () {
-          final scope = ScopeContext();
+          final store = StoreNode();
           final b = Computed((watch) => 2);
-          final vb = scope.read(b);
+          final vb = store.read(b);
 
           expect(vb, equals(2));
         });
 
         test('depends on Variable', () {
-          final scope = ScopeContext();
+          final store = StoreNode();
           final a = Variable((_) => 4);
           final b = Computed((watch) => watch(a) * 2);
-          final vb = scope.read(b);
+          final vb = store.read(b);
 
           expect(vb, equals(8));
         });
 
         test('depends on another Computed', () {
-          final scope = ScopeContext();
+          final store = StoreNode();
           final a = Variable((_) => 4);
           final b = Computed((watch) => watch(a) * 2);
           final c = Computed((watch) => watch(b) * 2);
-          final vc = scope.read(c);
+          final vc = store.read(c);
 
           expect(vc, equals(16));
         });
@@ -86,51 +86,51 @@ void main() {
 
       group('should not be able to depends on', () {
         test('itself', () {
-          final scope = ScopeContext();
+          final store = StoreNode();
           late final Computed<int> b;
           b = Computed((watch) => watch(b) * 2);
 
           expect(
-            () => scope.read(b),
+            () => store.read(b),
             throwsA(isA<CircularDependencyError>()),
           );
         });
 
         test('a dependent', () {
-          final scope = ScopeContext();
+          final store = StoreNode();
           late final Computed<int> b;
           late final Computed<int> c;
           b = Computed((watch) => watch(c) * 2);
           c = Computed((watch) => watch(b) * 2);
 
           expect(
-            () => scope.read(b),
+            () => store.read(b),
             throwsA(isA<CircularDependencyError>()),
           );
         });
       });
 
       group('[Creation]', () {
-        test('should always be created in the lowest scope', () {
+        test('should always be created in the lowest store', () {
           final a = Variable((_) => 4);
-          final scope1 = ScopeContext();
-          final scope2 = ScopeContext(
-            parent: scope1,
+          final store1 = StoreNode();
+          final store2 = StoreNode(
+            parent: store1,
             overrides: {a.overrideWithValue(3)},
           );
           final c = Computed((watch) => watch(a) * 2);
 
-          expect(scope1.read(a), equals(4));
-          expect(scope2.read(c), equals(6));
-          expect(scope2.read(a), equals(3));
-          scope1.write(a, 5);
-          expect(scope1.read(a), equals(5));
-          expect(scope2.read(c), equals(6));
-          expect(scope2.read(a), equals(3));
-          scope2.write(a, 5);
-          expect(scope1.read(a), equals(5));
-          expect(scope2.read(c), equals(10));
-          expect(scope2.read(a), equals(5));
+          expect(store1.read(a), equals(4));
+          expect(store2.read(c), equals(6));
+          expect(store2.read(a), equals(3));
+          store1.write(a, 5);
+          expect(store1.read(a), equals(5));
+          expect(store2.read(c), equals(6));
+          expect(store2.read(a), equals(3));
+          store2.write(a, 5);
+          expect(store1.read(a), equals(5));
+          expect(store2.read(c), equals(10));
+          expect(store2.read(a), equals(5));
         });
       });
     });
@@ -147,21 +147,21 @@ void main() {
             return result;
           });
 
-          final scope = ScopeContext();
+          final store = StoreNode();
 
           // creates v1 -> c1.
-          scope.read(c1);
+          store.read(c1);
           expect(logs1, [8]);
 
           // updates v1, which should update c1.
-          scope.update(v1, (x) => x + 1);
+          store.update(v1, (x) => x + 1);
           expect(logs1, [8, 10]);
 
           // c1 should no longer exists.
-          scope.delete(c1);
+          store.delete(c1);
 
           // since c1 no longer exists, it should not be updated.
-          scope.update(v1, (x) => x + 1);
+          store.update(v1, (x) => x + 1);
           expect(logs1, [8, 10]);
         });
 
@@ -189,9 +189,9 @@ void main() {
             dependency = c;
           }
 
-          final scope = ScopeContext();
+          final store = StoreNode();
           // Creates v1 -> c0 -> ... -> c9.
-          scope.read(cx.last);
+          store.read(cx.last);
 
           for (int i = 0; i < max; i++) {
             final mult = math.pow(2, i + 1);
@@ -199,24 +199,24 @@ void main() {
           }
 
           // updates v1, which should update cO through c9.
-          scope.update(v1, (x) => x + 1);
+          store.update(v1, (x) => x + 1);
           for (int i = 0; i < max; i++) {
             final mult = math.pow(2, i + 1);
             expect(allLogs[i], [v * mult, (v + 1) * mult]);
           }
 
           // c9 should no longer exists and all the chain should also be deleted.
-          scope.delete(cx.last);
+          store.delete(cx.last);
 
           // since all the chain is deleted, they should not be updated.
-          scope.update(v1, (x) => x + 1);
+          store.update(v1, (x) => x + 1);
           for (int i = 0; i < max; i++) {
             final mult = math.pow(2, i + 1);
             expect(allLogs[i], [v * mult, (v + 1) * mult]);
           }
         });
 
-        test('Should remove a chain of nodes across scopes', () {
+        test('Should remove a chain of nodes across stores', () {
           const v = 4;
           final v1 = Variable((_) => v);
 
@@ -244,15 +244,15 @@ void main() {
           final c2 = cx[1];
           final c3 = cx[2];
 
-          final scope1 = ScopeContext();
-          final scope2 = ScopeContext(parent: scope1);
-          final scope3 = ScopeContext(parent: scope2);
-          final scope4 = ScopeContext(parent: scope3);
+          final store1 = StoreNode();
+          final store2 = StoreNode(parent: store1);
+          final store3 = StoreNode(parent: store2);
+          final store4 = StoreNode(parent: store3);
 
-          scope4.read(v1);
-          scope4.read(c1);
-          scope4.read(c2);
-          scope4.read(c3);
+          store4.read(v1);
+          store4.read(c1);
+          store4.read(c2);
+          store4.read(c3);
 
           for (int i = 0; i < max; i++) {
             final mult = math.pow(2, i + 1);
@@ -260,17 +260,17 @@ void main() {
           }
 
           // updates v1, which should update c1 through c3.
-          scope1.update(v1, (x) => x + 1);
+          store1.update(v1, (x) => x + 1);
           for (int i = 0; i < max; i++) {
             final mult = math.pow(2, i + 1);
             expect(allLogs[i], [v * mult, (v + 1) * mult]);
           }
 
           // c3 should no longer exists and all the chain should also be deleted.
-          scope4.delete(c3);
+          store4.delete(c3);
 
           // since all the chain is deleted, they should not be updated.
-          scope1.update(v1, (x) => x + 1);
+          store1.update(v1, (x) => x + 1);
           for (int i = 0; i < max; i++) {
             final mult = math.pow(2, i + 1);
             expect(allLogs[i], [v * mult, (v + 1) * mult]);
@@ -280,20 +280,20 @@ void main() {
         test('Should not be able to delete a node that has dependents', () {
           final v = Variable((_) => 3);
           final c = Computed((watch) => watch(v));
-          final scope = ScopeContext();
-          scope.read(c);
-          expect(() => scope.delete(v), throwsA(isA<NodeHasDependentsError>()));
+          final store = StoreNode();
+          store.read(c);
+          expect(() => store.delete(v), throwsA(isA<NodeHasDependentsError>()));
         });
       },
     );
 
     group('[Dispose]', () {
-      test('Should not be able to dispose a scope with dependents', () {
-        final scope1 = ScopeContext()..init();
+      test('Should not be able to dispose a store with dependents', () {
+        final store1 = StoreNode()..init();
         // ignore: unused_local_variable
-        final scope2 = ScopeContext(parent: scope1)..init();
+        final store2 = StoreNode(parent: store1)..init();
 
-        expect(() => scope1.dispose(), throwsA(isA<ScopeHasDependentsError>()));
+        expect(() => store1.dispose(), throwsA(isA<StoreHasDependentsError>()));
       });
     });
   });

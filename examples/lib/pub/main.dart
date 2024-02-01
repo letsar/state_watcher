@@ -13,7 +13,7 @@ class PubApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StateScope(
+    return const StateStore(
       child: MaterialApp(
         home: SearchPage(),
       ),

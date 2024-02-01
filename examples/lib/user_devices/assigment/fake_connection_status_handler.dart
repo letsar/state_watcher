@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:examples/common/loadable.dart';
-import 'package:examples/user_devices/devices/data/device_store.dart';
+import 'package:examples/user_devices/devices/data/device_vault.dart';
 import 'package:examples/user_devices/devices/data/models/device.dart';
 import 'package:state_watcher/state_watcher.dart';
 
@@ -14,7 +14,7 @@ class FakeConnectionStatusHandler
     implements Loadable, Disposable {
   FakeConnectionStatusHandler();
 
-  DeviceStore get _deviceStore => read(refDeviceStore);
+  DeviceVault get _deviceStore => read(refDeviceVault);
   Timer? _timer;
   final Random _rnd = Random();
 

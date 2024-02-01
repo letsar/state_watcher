@@ -1,13 +1,13 @@
-import 'package:examples/user_devices/core/data/store.dart';
+import 'package:examples/user_devices/core/data/vault.dart';
 import 'package:examples/user_devices/users/data/models/user.dart';
 import 'package:examples/user_devices/users/data/sources/user_api.dart';
 import 'package:state_watcher/state_watcher.dart';
 
 final refUserMap = Variable((_) => const <int, User>{});
-final refUserStore = Variable((_) => UserStore());
+final refUserVault = Variable((_) => UserVault());
 
-class UserStore extends Store<User> {
-  UserStore() : super(refUserMap);
+class UserVault extends Vault<User> {
+  UserVault() : super(refUserMap);
 
   UserApi get _apiClient => read(refUserApi);
 

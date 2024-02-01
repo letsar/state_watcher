@@ -2,12 +2,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:state_watcher/src/core/refs.dart';
 import 'package:state_watcher/src/core/state_observer.dart';
-import 'package:state_watcher/src/widgets/build_scope.dart';
-import 'package:state_watcher/src/widgets/state_scope.dart';
+import 'package:state_watcher/src/widgets/build_store.dart';
+import 'package:state_watcher/src/widgets/state_store.dart';
 import 'package:state_watcher/src/widgets/state_watcher.dart';
 
 void main() {
-  group('StateScope', () {
+  group('StateStore', () {
     group('Overrides', () {
       testWidgets('should correctly update overrides', (tester) async {
         final a = Variable<int>.undefined();
@@ -15,15 +15,15 @@ void main() {
         int buildCount = 0;
 
         final watcher = StateWatcher(
-          builder: (context, scope) {
+          builder: (context, store) {
             buildCount++;
-            va = scope.watch(a);
+            va = store.watch(a);
             return const SizedBox();
           },
         );
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(0)},
             child: watcher,
           ),
@@ -33,7 +33,7 @@ void main() {
         expect(buildCount, equals(1));
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(5)},
             child: watcher,
           ),
@@ -49,15 +49,15 @@ void main() {
         int buildCount = 0;
         late int va;
         final watcher = StateWatcher(
-          builder: (context, scope) {
+          builder: (context, store) {
             buildCount++;
-            va = scope.watch(a);
+            va = store.watch(a);
             return const SizedBox();
           },
         );
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(0)},
             child: watcher,
           ),
@@ -67,7 +67,7 @@ void main() {
         expect(buildCount, equals(1));
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(0)},
             child: watcher,
           ),
@@ -83,18 +83,18 @@ void main() {
         final a = Variable<int>.undefined();
         int buildCount = 0;
         late int va;
-        late BuildScope buildScope;
+        late BuildStore buildStore;
         final watcher = StateWatcher(
-          builder: (context, scope) {
-            buildScope = scope;
+          builder: (context, store) {
+            buildStore = store;
             buildCount++;
-            va = scope.watch(a);
+            va = store.watch(a);
             return const SizedBox();
           },
         );
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(0)},
             child: watcher,
           ),
@@ -103,7 +103,7 @@ void main() {
         expect(va, equals(0));
         expect(buildCount, equals(1));
 
-        buildScope.write(a, 4);
+        buildStore.write(a, 4);
 
         await tester.pump();
 
@@ -111,7 +111,7 @@ void main() {
         expect(buildCount, equals(2));
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(0)},
             child: watcher,
           ),
@@ -127,15 +127,15 @@ void main() {
         int buildCount = 0;
 
         final watcher = StateWatcher(
-          builder: (context, scope) {
+          builder: (context, store) {
             buildCount++;
-            va = scope.watch(a);
+            va = store.watch(a);
             return const SizedBox();
           },
         );
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             overrides: {a.overrideWithValue(5)},
             child: watcher,
           ),
@@ -145,7 +145,7 @@ void main() {
         expect(buildCount, equals(1));
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             child: watcher,
           ),
         );
@@ -157,23 +157,23 @@ void main() {
 
     group('Observers', () {
       testWidgets('should be called when state changes', (tester) async {
-        late BuildScope buildScope;
+        late BuildStore buildStore;
         final watcher = StateWatcher(
-          builder: (context, scope) {
-            buildScope = scope;
-            scope.watch(a);
+          builder: (context, store) {
+            buildStore = store;
+            store.watch(a);
             return const SizedBox();
           },
         );
         final obs = _StateObserver();
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             observers: [obs],
             child: watcher,
           ),
         );
 
-        buildScope.write(a, 5);
+        buildStore.write(a, 5);
         await tester.pump();
         expect(obs.logs, [
           'didStateCreated ${a.debugName} with 0',
@@ -182,24 +182,24 @@ void main() {
       });
 
       testWidgets('should correcly update observers', (tester) async {
-        late BuildScope buildScope;
+        late BuildStore buildStore;
         final watcher = StateWatcher(
-          builder: (context, scope) {
-            buildScope = scope;
-            scope.watch(a);
+          builder: (context, store) {
+            buildStore = store;
+            store.watch(a);
             return const SizedBox();
           },
         );
         final obs1 = _StateObserver();
         final obs2 = _StateObserver();
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             observers: [obs1],
             child: watcher,
           ),
         );
 
-        buildScope.write(a, 5);
+        buildStore.write(a, 5);
         await tester.pump();
         expect(obs1.logs, [
           'didStateCreated ${a.debugName} with 0',
@@ -208,13 +208,13 @@ void main() {
         expect(obs2.logs, isEmpty);
 
         await tester.pumpWidget(
-          StateScope(
+          StateStore(
             observers: [obs2],
             child: watcher,
           ),
         );
 
-        buildScope.write(a, 6);
+        buildStore.write(a, 6);
         await tester.pump();
 
         expect(obs1.logs, [
@@ -235,15 +235,15 @@ void main() {
         });
 
         await tester.pumpWidget(
-          StateScope(
-            child: StateScope(
-              child: StateScope(
+          StateStore(
+            child: StateStore(
+              child: StateStore(
                 overrides: {
                   a.overrideWithValue(5),
                 },
                 child: StateWatcher(
-                  builder: (context, scope) {
-                    scope.watch(c);
+                  builder: (context, store) {
+                    store.watch(c);
                     return const SizedBox();
                   },
                 ),
@@ -252,10 +252,10 @@ void main() {
           ),
         );
 
-        // Removing the last scope should delete all refs without exception.
+        // Removing the last store should delete all refs without exception.
         await tester.pumpWidget(
-          const StateScope(
-            child: StateScope(
+          const StateStore(
+            child: StateStore(
               child: SizedBox(),
             ),
           ),
@@ -273,7 +273,7 @@ class _StateObserver extends StateObserver {
   final logs = <String>[];
 
   @override
-  void didStateCreated<T>(Scope scope, Ref<T> ref, T value) {
+  void didStateCreated<T>(Store store, Ref<T> ref, T value) {
     if (ref.id != a.id) {
       return;
     }
@@ -281,7 +281,7 @@ class _StateObserver extends StateObserver {
   }
 
   @override
-  void didStateUpdated<T>(Scope scope, Ref<T> ref, T oldValue, T newValue) {
+  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue) {
     if (ref.id != a.id) {
       return;
     }
@@ -289,7 +289,7 @@ class _StateObserver extends StateObserver {
   }
 
   @override
-  void didStateDeleted<T>(Scope scope, Ref<T> ref) {
+  void didStateDeleted<T>(Store store, Ref<T> ref) {
     if (ref.id != a.id) {
       return;
     }

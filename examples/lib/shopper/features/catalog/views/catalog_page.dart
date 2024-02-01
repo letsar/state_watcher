@@ -16,8 +16,8 @@ class CatalogPage extends WatcherStatelessWidget {
   const CatalogPage({super.key});
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final products = scope.watch(refProducts);
+  Widget build(BuildContext context, BuildStore store) {
+    final products = store.watch(refProducts);
 
     return Loader(
       refs: [refCatalogPageLogic],
@@ -32,7 +32,7 @@ class CatalogPage extends WatcherStatelessWidget {
                 (context, index) {
                   final product = products[index];
 
-                  return StateScope(
+                  return StateStore(
                     overrides: {
                       _refCurrentProduct.overrideWithValue(product),
                     },
@@ -68,8 +68,8 @@ class _Product extends WatcherStatelessWidget {
   const _Product();
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final product = scope.watch(_refCurrentProduct);
+  Widget build(BuildContext context, BuildStore store) {
+    final product = store.watch(_refCurrentProduct);
     var textTheme = Theme.of(context).textTheme.titleLarge;
 
     return Padding(
@@ -107,15 +107,15 @@ class _AddButton extends WatcherStatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context, BuildScope scope) {
-    final isInCart = scope.watch(_refIsInCart);
+  Widget build(BuildContext context, BuildStore store) {
+    final isInCart = store.watch(_refIsInCart);
 
     return TextButton(
       onPressed: isInCart
           ? null
           : () {
-              final productId = scope.read(_refCurrentProduct).id;
-              scope.read(refCatalogPageLogic).addProductToCart(productId);
+              final productId = store.read(_refCurrentProduct).id;
+              store.read(refCatalogPageLogic).addProductToCart(productId);
             },
       style: ButtonStyle(
         overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
