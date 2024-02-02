@@ -13,19 +13,13 @@ mixin WatcherElement on ComponentElement {
   late final BuildStore buildStore = _BuildStore(this);
 
   StoreNode? _store;
-  StoreNode? get store => _store;
-  set store(StoreNode? newStore) {
-    if (newStore != _store) {
-      _store?.delete(computed);
-      _store = newStore;
-    }
-  }
+  StoreNode get store => _store ??= dependOnParentStore(this, listen: false);
 
   late final computed = Computed<void>(
     compute,
     debugName: debugName ?? defaultDebugName(),
     updateShouldNotify: (_, __) {
-      // We alaways want to notify the Inspector in debug mode.
+      // We always want to notify the Inspector in debug mode.
       return kDebugMode;
     },
   );
@@ -73,9 +67,13 @@ mixin WatcherElement on ComponentElement {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    store = dependOnParentStore(this);
+  void activate() {
+    super.activate();
+    final newStore = dependOnParentStore(this, listen: false);
+    if (newStore != store) {
+      _store?.delete(computed);
+      _store = newStore;
+    }
   }
 
   @override
@@ -109,7 +107,7 @@ class _BuildStore implements BuildStore {
       element.debugDoingBuild,
       'Cannot watch the state outside of the build method.',
     );
-    final store = element.store ??= dependOnParentStore(element);
+    final store = element.store;
     element._dependencies.add(ref);
     return store.read(ref);
   }
@@ -118,6 +116,9 @@ class _BuildStore implements BuildStore {
   bool hasStateFor<T>(Ref<T> ref) {
     return fetchStore('hasStateFor').hasStateFor(ref);
   }
+
+  @override
+  int get stateCount => fetchStore('stateCount').stateCount;
 
   @override
   T read<T>(Ref<T> ref) {
@@ -144,7 +145,6 @@ class _BuildStore implements BuildStore {
       !element.debugDoingBuild,
       'The store.$methodName method cannot be called during build',
     );
-    final store = element.store ?? StateStore.of(element, listen: false);
-    return store;
+    return element.store;
   }
 }

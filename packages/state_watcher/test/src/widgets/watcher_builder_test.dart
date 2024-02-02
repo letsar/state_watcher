@@ -304,6 +304,78 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     });
+
+    group('reparenting', () {
+      testWidgets('should not delete ref if store is the same', (tester) async {
+        late BuildStore buildStore;
+        final a = Variable((_) => 0);
+        final GlobalKey key = GlobalKey();
+        await tester.pumpWidget(
+          StateStore(
+            key: const ValueKey(1),
+            child: _Stateful(
+              key: key,
+              builder: (context, store) {
+                buildStore = store;
+                store.watch(a);
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(
+          StateStore(
+            key: const ValueKey(1),
+            child: SizedBox(
+              child: _Stateful(
+                key: key,
+                builder: (context, store) {
+                  return const SizedBox();
+                },
+              ),
+            ),
+          ),
+        );
+
+        expect(buildStore.stateCount, 2);
+      });
+
+      testWidgets('should delete ref if store is not the same', (tester) async {
+        late BuildStore buildStore;
+        final a = Variable((_) => 0);
+        final GlobalKey key = GlobalKey();
+        await tester.pumpWidget(
+          StateStore(
+            key: const ValueKey(1),
+            child: _Stateful(
+              key: key,
+              builder: (context, store) {
+                buildStore = store;
+                store.watch(a);
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(
+          StateStore(
+            key: const ValueKey(1),
+            child: StateStore(
+              child: _Stateful(
+                key: key,
+                builder: (context, store) {
+                  return const SizedBox();
+                },
+              ),
+            ),
+          ),
+        );
+
+        expect(buildStore.stateCount, 1);
+      });
+    });
   });
 }
 
@@ -331,5 +403,24 @@ class _WatcherState extends State<_Watcher> {
     final sum = store.watch(_computedWithParam(widget.add));
     widget.logs.add(sum);
     return const SizedBox();
+  }
+}
+
+class _Stateful extends WatcherStatefulWidget {
+  const _Stateful({
+    super.key,
+    required this.builder,
+  });
+
+  final WatcherWidgetBuilder builder;
+
+  @override
+  State<_Stateful> createState() => _StatefulState();
+}
+
+class _StatefulState extends State<_Stateful> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, store);
   }
 }

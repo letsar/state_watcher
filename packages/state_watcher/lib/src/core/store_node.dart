@@ -78,6 +78,9 @@ class StoreNode extends Store {
   }
 
   @override
+  int get stateCount => _nodes.length;
+
+  @override
   T read<T>(Ref<T> ref) {
     final node = _fetchOrCreateNodeFromTree(ref);
     return node.value;
@@ -107,6 +110,11 @@ class StoreNode extends Store {
 
   @override
   void delete<T>(Ref<T> ref) {
+    if (!hasStateFor(ref)) {
+      // The ref is not in this store, nothing to do.
+      return;
+    }
+
     final node = _fetchOrCreateNodeFromTree(ref);
 
     if (!_disposing && node.hasDependents) {

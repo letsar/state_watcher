@@ -307,6 +307,9 @@ abstract class Store {
   /// Indicates whether [ref] has a value inside this [Store].
   bool hasStateFor<T>(Ref<T> ref);
 
+  /// The number of states located in this [Store].
+  int get stateCount;
+
   /// Reads the value of [ref] from this [Store].
   T read<T>(Ref<T> ref);
 
