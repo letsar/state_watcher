@@ -264,6 +264,21 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     });
+
+    testWidgets('of should be callable ', (tester) async {
+      late Store store;
+      final tree = StateStore(
+        child: Builder(
+          builder: (context) {
+            store = StateStore.of(context);
+            return const SizedBox();
+          },
+        ),
+      );
+      await tester.pumpWidget(tree);
+      expect(tester.takeException(), isNull);
+      expect(store, isNotNull);
+    });
   });
 }
 
