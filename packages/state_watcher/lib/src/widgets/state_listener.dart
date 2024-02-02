@@ -25,7 +25,7 @@ class StateListener<T> extends WatcherStatefulWidget {
   /// The [Ref] to listen to.
   final Ref<T> ref;
 
-  /// The name used in debug to track the changes of underlying computed.
+  @override
   final String? debugName;
 
   /// The callback to call when the state changes.
