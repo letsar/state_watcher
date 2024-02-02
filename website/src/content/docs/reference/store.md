@@ -28,7 +28,7 @@ But since Refs are lazily created, **f1** and **g1** would not be created before
 
 :::tip[Rules]
 To know where the state of a Ref will be stored there are two simple rules:
-- The state of a Variable will always be created in the nearest store where it's overriden, otherwise it will be create on the root one.
+- The state of a Variable will always be created in the nearest store where it's overriden, otherwise it will be created on the root one.
 - The state of a Computed is always created in the nearest store.
 :::
 
