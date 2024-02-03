@@ -1,14 +1,5 @@
 part of 'refs.dart';
 
-bool _isStateWatcherDevToolsEnabled = true;
-
-// coverage:ignore-start
-/// Call this method to disable DevTools in DebugMode.
-void disableStateWatcherDevTools() {
-  _isStateWatcherDevToolsEnabled = false;
-}
-// coverage:ignore-end
-
 /// Object containing the actual states referenced by [Ref] instances.
 ///
 /// Can have a parent store.
@@ -81,6 +72,19 @@ class StoreNode extends Store {
     _observers.addAll(observers);
   }
 
+  void watch<T>(Observed observed, Ref<T> ref) {
+    final node = _fetchOrCreateNodeFromTree(observed);
+    node.addDependency(_fetchOrCreateNodeFromTree(ref));
+  }
+
+  void unwatchAll(Observed observed) {
+    final node = _fetchOrCreateNodeFromTree(observed);
+    final dependencies = node._dependencies.toList();
+    for (final dependency in dependencies) {
+      node.removeDependency(dependency);
+    }
+  }
+
   @override
   bool hasStateFor<T>(Ref<T> ref) {
     return _nodes.containsKey(ref.id);
@@ -99,17 +103,6 @@ class StoreNode extends Store {
   void write<T>(Variable<T> ref, T value) {
     final node = _fetchOrCreateNodeFromTree(ref);
     node.value = value;
-  }
-
-  /// We need to be able to refresh a computed value, so that conditional
-  /// dependencies can be updated in Flutter.
-  void refresh<T>(Computed<T> ref) {
-    final node = _fetchOrCreateNodeFromTree(ref);
-    if (kDebugMode && _isStateWatcherDevToolsEnabled) {
-      StateInspector.instance.mutePostUpdateEvent(() {
-        node.update();
-      });
-    }
   }
 
   @override
@@ -194,7 +187,7 @@ class StoreNode extends Store {
       // For a Computed, we need to fetch the value from the nearest store,
       // because in case of dependency overrides, we need to get those values
       // from the nearest store.
-      Computed<T>() => _fetchOrCreateNode(ref),
+      Computed<T>() || Observed() => _fetchOrCreateNode(ref),
     };
     return node;
   }
@@ -203,7 +196,7 @@ class StoreNode extends Store {
     for (final observer in _observers) {
       observer.didStateCreated(node.store, node.ref, node.value);
     }
-    if (kDebugMode && parent == null && _isStateWatcherDevToolsEnabled) {
+    if (kDebugMode && parent == null) {
       StateInspector.instance.didStateCreated(node);
     }
     parent?._stateCreated(node);
@@ -221,7 +214,7 @@ class StoreNode extends Store {
     for (final observer in _observers) {
       observer.didStateDeleted(node.store, node.ref);
     }
-    if (kDebugMode && parent == null && _isStateWatcherDevToolsEnabled) {
+    if (kDebugMode && parent == null) {
       StateInspector.instance.didStateDeleted(node);
     }
     parent?._stateDeleted(node);
@@ -282,9 +275,7 @@ abstract class Node<T> {
 
     final shouldUpdateDependents = ref.updateShouldNotify(oldValue, newValue);
 
-    if (kDebugMode &&
-        _isStateWatcherDevToolsEnabled &&
-        (shouldUpdateDependents || _shouldNotifyInspector)) {
+    if (kDebugMode && (shouldUpdateDependents || _shouldNotifyInspector)) {
       StateInspector.instance.didStateUpdated(this);
       _shouldNotifyInspector = false;
     }
@@ -351,7 +342,7 @@ abstract class Node<T> {
 
     return {
       'id': debugId,
-      'debugName': debugName is DebugName ? debugName.name : ref.id.toString(),
+      'debugName': debugName,
       'refType': metadata.refType,
       'valueType': metadata.valueType,
       'customName': metadata.isCustomName,
@@ -359,11 +350,6 @@ abstract class Node<T> {
       'storeDebugName': store.debugName,
       'dependencies': _dependencies.map((d) => d.debugId).toList(),
       'value': '$value',
-      if (debugName is DebugName) ...{
-        'file': debugName.file,
-        'line': debugName.line,
-        'column': debugName.column,
-      },
     };
   }
 }
@@ -455,6 +441,41 @@ class ComputedNode<T> extends Node<T> {
 }
 
 @internal
+class ObservedNode extends Node<void> {
+  ObservedNode(this.ref, super.store);
+
+  @override
+  Observed ref;
+
+  @override
+  void init() {
+    super.init();
+    _value = null;
+  }
+
+  @override
+  void update() {
+    ref.onDependencyChanged();
+    if (kDebugMode) {
+      StateInspector.instance.didStateUpdated(this);
+    }
+  }
+
+  @override
+  Map<String, Object> toJson() {
+    final json = super.toJson();
+
+    if (ref.location case final location?) {
+      json['file'] = location.file;
+      json['line'] = location.line;
+      json['column'] = location.column;
+    }
+
+    return json;
+  }
+}
+
+@internal
 class CircularDependencyDetector {
   CircularDependencyDetector(this.nodeId);
 
@@ -523,25 +544,5 @@ class NodeHasDependentsError extends HasDependentsError {
   @override
   String toString() {
     return 'Cannot delete $node because it has ${node._dependents.length} dependents.';
-  }
-}
-
-@internal
-class DebugName {
-  const DebugName({
-    required this.name,
-    required this.file,
-    required this.line,
-    required this.column,
-  });
-
-  final String name;
-  final String file;
-  final int line;
-  final int column;
-
-  @override
-  String toString() {
-    return '$name($file:$line:$column)';
   }
 }

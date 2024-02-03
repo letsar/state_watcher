@@ -22,14 +22,14 @@ typedef Reader = T Function<T>(Ref<T> ref);
 class Metadata {
   /// Creates a new [Metadata].
   const Metadata({
-    Object? debugName,
+    String? debugName,
     required this.refType,
     required this.valueType,
   })  : debugName = debugName ?? '$refType<$valueType>',
         isCustomName = debugName != null;
 
   /// The object used to identify this [Ref] in debug logs.
-  final Object debugName;
+  final String debugName;
 
   /// The type of the [Ref].
   final String refType;
@@ -42,7 +42,7 @@ class Metadata {
 
   @override
   String toString() {
-    return debugName.toString();
+    return debugName;
   }
 }
 
@@ -78,7 +78,7 @@ sealed class Ref<T> {
   Node<T> _createNode(StoreNode store);
 
   /// The name used in debugging tools to identify this [Ref].
-  String get debugName => metadata.debugName.toString();
+  String get debugName => metadata.debugName;
 
   @override
   String toString() {
@@ -231,7 +231,7 @@ class Computed<T> extends Ref<T> {
   /// with this [Computed].
   Computed(
     T Function(Reader watch) compute, {
-    Object? debugName,
+    String? debugName,
     bool autoDispose = true,
     AreDifferent<T>? updateShouldNotify,
   }) : this._(
@@ -243,7 +243,7 @@ class Computed<T> extends Ref<T> {
 
   Computed._(
     T Function(Reader watch) compute, {
-    Object? debugName,
+    String? debugName,
     bool autoDispose = true,
     AreDifferent<T>? updateShouldNotify,
   }) : this._fromMetadata(
@@ -292,6 +292,60 @@ class Computed<T> extends Ref<T> {
       debugName,
       updateShouldNotify,
     );
+  }
+}
+
+@internal
+class Observed extends Ref<void> {
+  Observed(
+    VoidCallback onDependencyChanged, {
+    ObservedLocation? location,
+    String? debugName,
+    AreDifferent<void>? updateShouldNotify,
+  }) : this._fromMetadata(
+          onDependencyChanged: onDependencyChanged,
+          location: location,
+          metadata: Metadata(
+            refType: 'Observed',
+            valueType: 'void',
+            debugName: debugName,
+          ),
+          updateShouldNotify: updateShouldNotify,
+        );
+
+  Observed._fromMetadata({
+    required this.onDependencyChanged,
+    required this.location,
+    required super.metadata,
+    required super.updateShouldNotify,
+  }) : super(id: metadata);
+
+  final VoidCallback onDependencyChanged;
+  final ObservedLocation? location;
+
+  @override
+  Node<void> _createNode(StoreNode store) {
+    return ObservedNode(this, store);
+  }
+}
+
+@internal
+class ObservedLocation {
+  const ObservedLocation({
+    required this.name,
+    required this.file,
+    required this.line,
+    required this.column,
+  });
+
+  final String name;
+  final String file;
+  final int line;
+  final int column;
+
+  @override
+  String toString() {
+    return '$name($file:$line:$column)';
   }
 }
 

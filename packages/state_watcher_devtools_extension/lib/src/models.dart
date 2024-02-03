@@ -23,7 +23,7 @@ class Node {
     required this.dependencyIds,
     required this.value,
     required this.location,
-  }) : nodeType = _nodeTypeFromRefTypeAndLocation(refType, location);
+  }) : nodeType = _nodeTypeFromRefTypeAndLocation(refType);
 
   final String id;
   final bool isCustomName;
@@ -75,10 +75,10 @@ class Node {
   }
 }
 
-NodeType _nodeTypeFromRefTypeAndLocation(String refType, String? location) {
+NodeType _nodeTypeFromRefTypeAndLocation(String refType) {
   return switch (refType) {
     'Variable' => NodeType.variable,
-    'Computed' when location != null => NodeType.watcher,
+    'Observed' => NodeType.watcher,
     _ => NodeType.computed,
   };
 }

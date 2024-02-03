@@ -7,7 +7,6 @@ import 'package:state_watcher/src/widgets/state_store.dart';
 
 @internal
 mixin WatcherElement on ComponentElement {
-  final Set<Ref<Object?>> _dependencies = {};
   String? get debugName;
 
   late final BuildStore buildStore = _BuildStore(this);
@@ -15,55 +14,54 @@ mixin WatcherElement on ComponentElement {
   StoreNode? _store;
   StoreNode get store => _store ??= dependOnParentStore(this, listen: false);
 
-  late final computed = Computed<void>(
-    compute,
-    debugName: debugName ?? defaultDebugName(),
-    updateShouldNotify: (_, __) {
-      // We always want to notify the Inspector in debug mode.
-      return kDebugMode;
-    },
-  );
+  late final Observed observed = createObserved();
 
-  void compute(Reader watch) {
-    for (final dependency in _dependencies) {
-      watch(dependency);
-    }
+  Observed createObserved() {
+    final location = fetchElementLocation();
+    final effectiveDebugName =
+        debugName ?? 'Watcher[${location?.name ?? toStringShort()}]';
+    return Observed(
+      onStateChanged,
+      location: location,
+      debugName: effectiveDebugName,
+      updateShouldNotify: (_, __) {
+        // We always want to notify the Inspector in debug mode.
+        return kDebugMode;
+      },
+    );
+  }
+
+  void onStateChanged() {
     if (mounted) {
       markNeedsBuild();
     }
   }
 
-  Object defaultDebugName() {
-    Object debugName = '';
+  ObservedLocation? fetchElementLocation() {
     if (kDebugMode) {
-      debugName = fetchElementDebugName();
-    }
-    return debugName;
-  }
+      final service = WidgetInspectorService.instance;
+      if (service.isWidgetCreationTracked()) {
+        final delegate = InspectorSerializationDelegate(service: service);
+        final parentNode = toDiagnosticsNode();
+        final map = delegate.additionalNodeProperties(parentNode);
 
-  Object fetchElementDebugName() {
-    final service = WidgetInspectorService.instance;
-    if (service.isWidgetCreationTracked()) {
-      final delegate = InspectorSerializationDelegate(service: service);
-      final parentNode = toDiagnosticsNode();
-      final map = delegate.additionalNodeProperties(parentNode);
+        if (map['creationLocation'] case final Map<String, Object?> loc?) {
+          final file = loc['file']! as String;
+          final name = loc['name'] as String?;
+          final line = loc['line']! as int;
+          final column = loc['column']! as int;
 
-      if (map['creationLocation'] case final Map<String, Object?> loc?) {
-        final file = loc['file']! as String;
-        final name = loc['name'] as String?;
-        final line = loc['line']! as int;
-        final column = loc['column']! as int;
-
-        return DebugName(
-          name: 'Watcher[$name]',
-          file: file,
-          line: line,
-          column: column,
-        );
+          return ObservedLocation(
+            name: 'Watcher[$name]',
+            file: file,
+            line: line,
+            column: column,
+          );
+        }
       }
     }
 
-    return 'Watcher[${toStringShort()}]';
+    return null;
   }
 
   @override
@@ -71,15 +69,14 @@ mixin WatcherElement on ComponentElement {
     super.activate();
     final newStore = dependOnParentStore(this, listen: false);
     if (newStore != store) {
-      _store?.delete(computed);
+      _store?.delete(observed);
       _store = newStore;
     }
   }
 
   @override
   void unmount() {
-    _dependencies.clear();
-    _store?.delete(computed);
+    _store?.delete(observed);
     super.unmount();
   }
 
@@ -87,12 +84,8 @@ mixin WatcherElement on ComponentElement {
   Widget build() {
     // We need to clear the dependencies before building the widget in case we
     // have conditional dependencies.
-    _dependencies.clear();
-    final result = super.build();
-
-    /// We need to read the computed value to register the dependencies.
-    _store?.refresh(computed);
-    return result;
+    store.unwatchAll(observed);
+    return super.build();
   }
 }
 
@@ -108,7 +101,7 @@ class _BuildStore implements BuildStore {
       'Cannot watch the state outside of the build method.',
     );
     final store = element.store;
-    element._dependencies.add(ref);
+    store.watch(element.observed, ref);
     return store.read(ref);
   }
 

@@ -135,6 +135,53 @@ void main() {
       });
     });
 
+    group('[Observed]', () {
+      test('should be able to watch', () {
+        final store = StoreNode();
+        int count = 0;
+        final o = Observed(() {
+          count++;
+        });
+        final a = Variable((_) => 4);
+        store.watch(o, a);
+        expect(count, 0);
+        store.write(a, 5);
+        expect(count, 1);
+        store.write(a, 5);
+        expect(count, 1);
+      });
+
+      test('should be able to unwatch', () {
+        final store = StoreNode();
+        int count = 0;
+        final o = Observed(() {
+          count++;
+        });
+        final a = Variable((_) => 4);
+        store.watch(o, a);
+        expect(count, 0);
+        store.write(a, 5);
+        expect(count, 1);
+        store.unwatchAll(o);
+        store.write(a, 6);
+        expect(count, 1);
+      });
+
+      test('should not be removed when unwatch', () {
+        final store = StoreNode();
+        int count = 0;
+        final o = Observed(() {
+          count++;
+        });
+        final a = Variable((_) => 4);
+        store.watch(o, a);
+        expect(count, 0);
+        expect(store.stateCount, 2);
+        store.unwatchAll(o);
+        expect(store.stateCount, 2);
+      });
+    });
+
     group(
       '[Delete]',
       () {

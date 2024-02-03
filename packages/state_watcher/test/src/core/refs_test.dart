@@ -3,7 +3,7 @@ import 'package:state_watcher/src/core/refs.dart';
 
 void main() {
   group('Refs', () {
-    test('toString() method should their debugName', () {
+    test('toString() method should be their debugName', () {
       final refDefaultDebugNameV = Variable((_) => 0);
       expect(refDefaultDebugNameV.toString(), 'Variable<int>');
 
@@ -15,6 +15,12 @@ void main() {
 
       final refCustomDebugNameC = Computed((_) => 0, debugName: 'custom');
       expect(refCustomDebugNameC.toString(), 'custom');
+
+      final refDefaultDebugNameO = Observed(() {});
+      expect(refDefaultDebugNameO.toString(), 'Observed<void>');
+
+      final refCustomDebugNameO = Observed(() {}, debugName: 'custom');
+      expect(refCustomDebugNameO.toString(), 'custom');
     });
 
     test(
