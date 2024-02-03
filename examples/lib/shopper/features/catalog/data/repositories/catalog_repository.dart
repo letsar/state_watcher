@@ -1,7 +1,7 @@
 import 'package:examples/shopper/features/products/data/models/product.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refCatalogRepository = Variable((_) => const CatalogRepository());
+final refCatalogRepository = Provided((_) => const CatalogRepository());
 
 class CatalogRepository {
   const CatalogRepository();

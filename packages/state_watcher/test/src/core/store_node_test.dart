@@ -5,10 +5,10 @@ import 'package:state_watcher/src/core/refs.dart';
 
 void main() {
   group('Store', () {
-    group('[Variable]', () {
+    group('[Provided]', () {
       test('should be able to be read', () {
         final store = StoreNode();
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         final va = store.read(a);
 
         expect(va, equals(4));
@@ -16,7 +16,7 @@ void main() {
 
       test('should be able to be written', () {
         final store = StoreNode();
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         store.write(a, 8);
         final va = store.read(a);
 
@@ -26,7 +26,7 @@ void main() {
       test('should always be created in the highest store', () {
         final store1 = StoreNode();
         final store2 = StoreNode(parent: store1);
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
 
         expect(store2.read(a), equals(4));
         store1.write(a, 5);
@@ -34,20 +34,20 @@ void main() {
       });
 
       test('undefined() should throws if read', () {
-        final refVariable = Variable<int>.undefined();
+        final refProvided = Provided<int>.undefined();
         final store = StoreNode();
-        expect(() => store.read(refVariable), throwsStateError);
+        expect(() => store.read(refProvided), throwsStateError);
       });
 
       test('can be overriden with a value', () {
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         final store = StoreNode(overrides: {a.overrideWithValue(3)});
         final va = store.read(a);
         expect(va, 3);
       });
 
       test('can be overriden with a function', () {
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         final store = StoreNode(overrides: {a.overrideWith((_) => 3)});
         final va = store.read(a);
         expect(va, 3);
@@ -64,9 +64,9 @@ void main() {
           expect(vb, equals(2));
         });
 
-        test('depends on Variable', () {
+        test('depends on Provided', () {
           final store = StoreNode();
-          final a = Variable((_) => 4);
+          final a = Provided((_) => 4);
           final b = Computed((watch) => watch(a) * 2);
           final vb = store.read(b);
 
@@ -75,7 +75,7 @@ void main() {
 
         test('depends on another Computed', () {
           final store = StoreNode();
-          final a = Variable((_) => 4);
+          final a = Provided((_) => 4);
           final b = Computed((watch) => watch(a) * 2);
           final c = Computed((watch) => watch(b) * 2);
           final vc = store.read(c);
@@ -112,7 +112,7 @@ void main() {
 
       group('[Creation]', () {
         test('should always be created in the lowest store', () {
-          final a = Variable((_) => 4);
+          final a = Provided((_) => 4);
           final store1 = StoreNode();
           final store2 = StoreNode(
             parent: store1,
@@ -142,7 +142,7 @@ void main() {
         final o = Observed(() {
           count++;
         });
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         store.watch(o, a);
         expect(count, 0);
         store.write(a, 5);
@@ -157,7 +157,7 @@ void main() {
         final o = Observed(() {
           count++;
         });
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         store.watch(o, a);
         expect(count, 0);
         store.write(a, 5);
@@ -173,7 +173,7 @@ void main() {
         final o = Observed(() {
           count++;
         });
-        final a = Variable((_) => 4);
+        final a = Provided((_) => 4);
         store.watch(o, a);
         expect(count, 0);
         expect(store.stateCount, 2);
@@ -187,7 +187,7 @@ void main() {
       () {
         test('Should remove a node from its dependencies', () {
           final logs1 = <int>[];
-          final v1 = Variable((_) => 4);
+          final v1 = Provided((_) => 4);
           final c1 = Computed((watch) {
             final result = watch(v1) * 2;
             logs1.add(result);
@@ -214,7 +214,7 @@ void main() {
 
         test('Should remove a chain of nodes', () {
           const v = 4;
-          final v1 = Variable((_) => v);
+          final v1 = Provided((_) => v);
 
           final allLogs = <List<int>>[];
           final cx = <Computed<int>>[];
@@ -265,7 +265,7 @@ void main() {
 
         test('Should remove a chain of nodes across stores', () {
           const v = 4;
-          final v1 = Variable((_) => v);
+          final v1 = Provided((_) => v);
 
           final allLogs = <List<int>>[];
           final cx = <Computed<int>>[];
@@ -325,7 +325,7 @@ void main() {
         });
 
         test('Should not be able to delete a node that has dependents', () {
-          final v = Variable((_) => 3);
+          final v = Provided((_) => 3);
           final c = Computed((watch) => watch(v));
           final store = StoreNode();
           store.read(c);

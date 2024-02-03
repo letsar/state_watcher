@@ -2,7 +2,7 @@ import 'package:examples/user_devices/core/data/sources/fake_api.dart';
 import 'package:examples/user_devices/users/data/models/user.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refUserApi = Variable((_) => UserApi());
+final refUserApi = Provided((_) => UserApi());
 
 const List<User> _users = <User>[
   User(id: 1, firstName: 'Alice', lastName: 'Alpha', deviceIds: <int>[2]),

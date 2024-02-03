@@ -7,7 +7,7 @@ import 'package:examples/user_devices/devices/data/models/device.dart';
 import 'package:state_watcher/state_watcher.dart';
 
 final refConnectionStatusHandler =
-    Variable((_) => FakeConnectionStatusHandler());
+    Provided((_) => FakeConnectionStatusHandler());
 
 class FakeConnectionStatusHandler
     with StateLogic

@@ -4,7 +4,7 @@ import 'package:state_watcher/state_watcher.dart';
 
 import '../entities/todo.dart';
 
-final refCurrentTodo = Variable<Todo>.undefined(debugName: 'currentTodo');
+final refCurrentTodo = Provided<Todo>.undefined(debugName: 'currentTodo');
 final refUncompletedTodosCount = Computed(
   debugName: 'uncompletedTodosCount',
   (watch) => watch(refTodoList).where((todo) => !todo.completed).length,

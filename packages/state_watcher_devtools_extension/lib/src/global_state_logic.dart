@@ -7,13 +7,13 @@ import 'package:state_watcher_devtools_extension/src/models.dart';
 
 const _prefix = 'ext.state_watcher';
 
-final refAllNodes = Variable((_) => <String, Node>{});
+final refAllNodes = Provided((_) => <String, Node>{});
 
-final refAllStores = Variable((_) => <String, Store>{});
+final refAllStores = Provided((_) => <String, Store>{});
 
-final refAllLogs = Variable((_) => <LogItem>[]);
+final refAllLogs = Provided((_) => <LogItem>[]);
 
-final refGlobalState = Variable((_) => GlobalStateLogic());
+final refGlobalState = Provided((_) => GlobalStateLogic());
 
 class GlobalStateLogic with StateLogic {
   GlobalStateLogic();

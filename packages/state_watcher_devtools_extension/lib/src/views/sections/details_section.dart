@@ -5,7 +5,7 @@ import 'package:state_watcher_devtools_extension/src/models.dart';
 import 'package:state_watcher_devtools_extension/src/views/devtools_page_logic.dart';
 import 'package:state_watcher_devtools_extension/src/views/widgets/section.dart';
 
-final _refCurrentNode = Variable<Node>.undefined();
+final _refCurrentNode = Provided<Node>.undefined();
 
 class DetailsSection extends StatelessWidget {
   const DetailsSection({

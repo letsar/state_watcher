@@ -3,9 +3,9 @@ import 'package:examples/pub/features/details/data/models/package_metrics_score.
 import 'package:examples/pub/features/details/data/repositories/details_repository.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refDetailsPageLogic = Variable<DetailsPageLogic>.undefined();
+final refDetailsPageLogic = Provided<DetailsPageLogic>.undefined();
 final refPackageNameToMetricsScore =
-    Variable((_) => <String, PackageMetricsScore>{});
+    Provided((_) => <String, PackageMetricsScore>{});
 
 class DetailsPageLogic with StateLogic implements Loadable {
   DetailsPageLogic({

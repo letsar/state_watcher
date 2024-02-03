@@ -3,8 +3,8 @@ import 'package:examples/user_devices/devices/data/models/device.dart';
 import 'package:examples/user_devices/devices/data/sources/device_api.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refDeviceMap = Variable((_) => const <int, Device>{});
-final refDeviceVault = Variable((_) => DeviceVault());
+final refDeviceMap = Provided((_) => const <int, Device>{});
+final refDeviceVault = Provided((_) => DeviceVault());
 
 class DeviceVault extends Vault<Device> {
   DeviceVault() : super(refDeviceMap);

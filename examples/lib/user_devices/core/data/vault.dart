@@ -7,7 +7,7 @@ abstract class Vault<T extends Identifiable>
     with StateLogic
     implements Loadable {
   Vault(this.ref);
-  final Variable<Map<int, T>> ref;
+  final Provided<Map<int, T>> ref;
 
   Map<int, T> get state => read(ref);
   set state(Map<int, T> value) => write(ref, value);

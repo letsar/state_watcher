@@ -10,7 +10,7 @@ void main() {
   group('StateStore', () {
     group('Overrides', () {
       testWidgets('should correctly update overrides', (tester) async {
-        final a = Variable<int>.undefined();
+        final a = Provided<int>.undefined();
         late int va;
         int buildCount = 0;
 
@@ -45,7 +45,7 @@ void main() {
 
       testWidgets('should not rebuild widget if override is the same',
           (tester) async {
-        final a = Variable<int>.undefined();
+        final a = Provided<int>.undefined();
         int buildCount = 0;
         late int va;
         final watcher = WatcherBuilder(
@@ -80,7 +80,7 @@ void main() {
       testWidgets(
           'should not rebuild widget if override is the same but changed in the meantime',
           (tester) async {
-        final a = Variable<int>.undefined();
+        final a = Provided<int>.undefined();
         int buildCount = 0;
         late int va;
         late BuildStore buildStore;
@@ -122,7 +122,7 @@ void main() {
       });
 
       testWidgets('should correctly remove override', (tester) async {
-        final a = Variable<int>.undefined();
+        final a = Provided<int>.undefined();
         late int va;
         int buildCount = 0;
 
@@ -229,7 +229,7 @@ void main() {
 
     group('Lifecycle', () {
       testWidgets('should correctly delete refs', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final c = Computed((watch) {
           return watch(a) * 2;
         });
@@ -282,7 +282,7 @@ void main() {
   });
 }
 
-final a = Variable((_) => 0);
+final a = Provided((_) => 0);
 
 class _StateObserver extends StateObserver {
   final logs = <String>[];

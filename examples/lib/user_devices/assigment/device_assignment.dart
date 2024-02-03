@@ -4,7 +4,7 @@ import 'package:examples/user_devices/users/data/models/user.dart';
 import 'package:examples/user_devices/users/data/user_vault.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refDeviceAssignment = Variable((_) => DeviceAssigmentStateLogic());
+final refDeviceAssignment = Provided((_) => DeviceAssigmentStateLogic());
 
 class DeviceAssigmentStateLogic with StateLogic {
   DeviceAssigmentStateLogic();

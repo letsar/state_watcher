@@ -8,9 +8,16 @@ sidebar:
 In my mind, the global state of an application is a set of independents sources of truth and derived states computed from them and other states.
 For example a list of transactions can be a source of truth and the sum of these transactions is a derived state. When the list changes, we want the sum to be updated automatically.
 
-In **state_watcher**, the sources of truth are referenced through [Variables][variable] and the derived states through [Computeds][computed].
+In **state_watcher**, the sources of truth are referenced through [Provided][provided] and the derived states through [Computed][computed].
 
-I used the word *referenced* because the actual state is not stored in [Variables][variable] and [Computeds][computed], they are simply references to get their associated value.
+:::note
+The etymology for both words come for these sentences:
+
+- The state is provided
+- The state is computed
+:::
+
+I used the word *referenced* because the actual state is not stored in [Provided][provided] and [Computed][computed], they are simply references to get their associated value.
 
 The states are located in a [Store][store] and it is through this object that you can interact with the actual values.
 
@@ -19,7 +26,7 @@ The last fundamental pieces of **state_watcher** are the [watchers][watchers]. T
 These are the core concepts of **state_watcher**, and you can build a Flutter application using only this. But for a better separation between the view and the business logic there is another important component: the [StateLogic][state_logic].
 
 <!-- Links -->
-[variable]: /state_watcher/reference/variable
+[provided]: /state_watcher/reference/provided
 [computed]: /state_watcher/reference/computed
 [store]: /state_watcher/reference/store
 [watchers]: /state_watcher/reference/watchers

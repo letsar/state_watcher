@@ -3,7 +3,7 @@ import 'package:examples/shopper/features/catalog/data/repositories/catalog_repo
 import 'package:examples/shopper/features/refs.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refCatalogPageLogic = Variable((_) => CatalogPageLogic());
+final refCatalogPageLogic = Provided((_) => CatalogPageLogic());
 
 class CatalogPageLogic with StateLogic implements Loadable {
   CatalogPageLogic();

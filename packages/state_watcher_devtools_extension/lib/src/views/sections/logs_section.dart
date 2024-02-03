@@ -22,7 +22,7 @@ final _refLogs = Computed((watch) {
   return allLogs.where((x) => ids.contains(x.nodeId)).toList();
 });
 
-final _refCurrentLog = Variable<LogItem>.undefined();
+final _refCurrentLog = Provided<LogItem>.undefined();
 
 class LogsSection extends StatelessWidget {
   const LogsSection({

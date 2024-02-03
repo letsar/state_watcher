@@ -7,11 +7,11 @@ sidebar:
 
 We saw how to update our widgets and how ref, but it would be better if we could separate the whole logic of updating our states from the UI.
 
-In **state_watcher** we can do it by creating a Variable with an object applying a specific mixin called `StateLogic`:
+In **state_watcher** we can do it by creating a Provided with an object applying a specific mixin called `StateLogic`:
 
 ```dart
-final refCounter = Variable((_) => 0);
-final refCounterStateLogic = Variable((_) => CounterStateLogic());
+final refCounter = Provided((_) => 0);
+final refCounterStateLogic = Provided((_) => CounterStateLogic());
 
 class CounterStateLogic with StateLogic {
   void incrementCounter() {

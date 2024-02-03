@@ -10,7 +10,7 @@ void main() {
   group('WatcherEffect', () {
     testWidgets('should immediately call onStateChanged when state changes',
         (tester) async {
-      final a = Variable((_) => 4);
+      final a = Provided((_) => 4);
       final logs = <String>[];
       late BuildStore buildStore;
       final tree = StateStore(
@@ -36,7 +36,7 @@ void main() {
     });
 
     testWidgets('should not rebuild when state changes', (tester) async {
-      final a = Variable((_) => 4);
+      final a = Provided((_) => 4);
       final logs = <String>[];
       late BuildStore buildStore;
       final tree = StateStore(
@@ -70,8 +70,8 @@ void main() {
     });
 
     testWidgets('should be able to change the ref', (tester) async {
-      final a = Variable((_) => 4);
-      final b = Variable((_) => 0);
+      final a = Provided((_) => 4);
+      final b = Provided((_) => 0);
       final logs = <String>[];
       late BuildStore buildStore;
       await tester.pumpWidget(

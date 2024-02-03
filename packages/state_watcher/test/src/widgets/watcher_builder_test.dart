@@ -12,7 +12,7 @@ void main() {
       testWidgets(
         'should throw without a StateStore ancestor',
         (tester) async {
-          final a = Variable((_) => 0);
+          final a = Provided((_) => 0);
           final tree = WatcherBuilder(
             builder: (context, store) {
               store.watch(a);
@@ -26,7 +26,7 @@ void main() {
       testWidgets(
         'should not throw with a StateStore ancestor',
         (tester) async {
-          final a = Variable((_) => 0);
+          final a = Provided((_) => 0);
           final tree = StateStore(
             child: WatcherBuilder(
               builder: (context, store) {
@@ -41,8 +41,8 @@ void main() {
       );
     });
     group('should be rebuilt only when', () {
-      testWidgets('variable changed', (tester) async {
-        final a = Variable((_) => 0);
+      testWidgets('Provided changed', (tester) async {
+        final a = Provided((_) => 0);
         int buildCount = 0;
         late BuildStore buildStore;
         final tree = StateStore(
@@ -66,7 +66,7 @@ void main() {
       });
 
       testWidgets('computed changed', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final c = Computed((watch) {
           return watch(a).isEven;
         });
@@ -110,13 +110,13 @@ void main() {
           expect(logs, isEmpty);
           await tester.pumpWidget(tree);
           expect(logs, equals([5]));
-          buildStore.write(_refVar, 5);
+          buildStore.write(_refProvided, 5);
           await tester.pump();
           expect(logs, equals([5, 6]));
         });
 
         testWidgets('because of parameter', (tester) async {
-          final a = Variable((_) => 1);
+          final a = Provided((_) => 1);
           late BuildStore buildStore;
           final logs = <int>[];
           final tree = StateStore(
@@ -140,7 +140,7 @@ void main() {
       });
 
       testWidgets('computed with parameter correctly deleted', (tester) async {
-        final a = Variable((_) => 1);
+        final a = Provided((_) => 1);
         late BuildStore buildStore;
         final logs = <int>[];
         final tree = StateStore(
@@ -166,7 +166,7 @@ void main() {
 
     group('read', () {
       testWidgets('should throw if used when building', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -180,7 +180,7 @@ void main() {
       });
 
       testWidgets('should not throw if used in a callback ', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -201,7 +201,7 @@ void main() {
     });
     group('write', () {
       testWidgets('should throw if used when building', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -215,7 +215,7 @@ void main() {
       });
 
       testWidgets('should not throw if used in a callback ', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -236,7 +236,7 @@ void main() {
     });
     group('update', () {
       testWidgets('should throw if used when building', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -250,7 +250,7 @@ void main() {
       });
 
       testWidgets('should not throw if used in a callback ', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -271,7 +271,7 @@ void main() {
     });
     group('delete', () {
       testWidgets('should throw if used when building', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -285,7 +285,7 @@ void main() {
       });
 
       testWidgets('should not throw if used in a callback ', (tester) async {
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final tree = StateStore(
           child: WatcherBuilder(
             builder: (context, store) {
@@ -308,7 +308,7 @@ void main() {
     group('reparenting', () {
       testWidgets('should not delete ref if store is the same', (tester) async {
         late BuildStore buildStore;
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final GlobalKey key = GlobalKey();
         await tester.pumpWidget(
           StateStore(
@@ -343,7 +343,7 @@ void main() {
 
       testWidgets('should delete ref if store is not the same', (tester) async {
         late BuildStore buildStore;
-        final a = Variable((_) => 0);
+        final a = Provided((_) => 0);
         final GlobalKey key = GlobalKey();
         await tester.pumpWidget(
           StateStore(
@@ -379,9 +379,9 @@ void main() {
   });
 }
 
-final _refVar = Variable((_) => 4);
+final _refProvided = Provided((_) => 4);
 final _computedWithParam = Computed.withParameter((watch, int parameter) {
-  return watch(_refVar) + parameter;
+  return watch(_refProvided) + parameter;
 });
 
 class _Watcher extends WatcherStatefulWidget {

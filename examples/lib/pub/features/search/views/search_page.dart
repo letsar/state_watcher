@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final _refCurrentPackage = Variable<Package>.undefined();
+final _refCurrentPackage = Provided<Package>.undefined();
 
 class SearchPage extends StatelessWidget {
   const SearchPage({

@@ -7,7 +7,7 @@ import 'package:examples/pub/features/search/views/search_page_logic.dart';
 import 'package:flutter/material.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final _refCurrentPackage = Variable<Package>.undefined();
+final _refCurrentPackage = Provided<Package>.undefined();
 final _refCurrentPackageMetricsScore = Computed((watch) {
   final packageName = watch(_refCurrentPackage).name;
   return watch(refPackageNameToMetricsScore)[packageName];

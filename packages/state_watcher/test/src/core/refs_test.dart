@@ -4,11 +4,11 @@ import 'package:state_watcher/src/core/refs.dart';
 void main() {
   group('Refs', () {
     test('toString() method should be their debugName', () {
-      final refDefaultDebugNameV = Variable((_) => 0);
-      expect(refDefaultDebugNameV.toString(), 'Variable<int>');
+      final refDefaultDebugNameP = Provided((_) => 0);
+      expect(refDefaultDebugNameP.toString(), 'Provided<int>');
 
-      final refCustomDebugNameV = Variable((_) => 0, debugName: 'custom');
-      expect(refCustomDebugNameV.toString(), 'custom');
+      final refCustomDebugNameP = Provided((_) => 0, debugName: 'custom');
+      expect(refCustomDebugNameP.toString(), 'custom');
 
       final refDefaultDebugNameC = Computed((_) => 0);
       expect(refDefaultDebugNameC.toString(), 'Computed<int>');
@@ -26,10 +26,10 @@ void main() {
     test(
       'should throw CircularDependencyError error if there is a circular dependency',
       () {
-        late Variable<_A> refA;
-        late Variable<_B> refB;
-        refA = Variable((read) => _A(read(refB)));
-        refB = Variable((read) => _B(read(refA)));
+        late Provided<_A> refA;
+        late Provided<_B> refB;
+        refA = Provided((read) => _A(read(refB)));
+        refB = Provided((read) => _B(read(refA)));
 
         final store = StoreNode();
         expect(() => store.read(refA), throwsA(isA<CircularDependencyError>()));

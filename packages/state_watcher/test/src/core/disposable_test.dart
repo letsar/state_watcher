@@ -11,10 +11,10 @@ void main() {
 
     final store = StoreNode();
 
-    final refVariable = Variable((_) => disposable);
-    store.read(refVariable);
+    final refProvided = Provided((_) => disposable);
+    store.read(refProvided);
     expect(disposed, false);
-    store.delete(refVariable);
+    store.delete(refProvided);
     expect(disposed, true);
   });
 }

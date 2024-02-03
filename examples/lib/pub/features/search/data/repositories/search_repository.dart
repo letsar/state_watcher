@@ -4,7 +4,7 @@ import 'package:examples/pub/features/pagination/data/models/paginated_data.dart
 import 'package:examples/pub/features/search/data/sources/search_api.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refSearchRepository = Variable((read) {
+final refSearchRepository = Provided((read) {
   final searchApi = read(refSearchApi);
   final detailsApi = read(refDetailsApi);
   return SearchRepository(

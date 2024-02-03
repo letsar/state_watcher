@@ -4,7 +4,7 @@ import 'package:state_watcher/state_watcher.dart';
 // This is how we can write the default Counter app with state_watcher.
 
 /// Reference to the counter value. Initialized to 0.
-final _refCounter = Variable((_) => 0);
+final _refCounter = Provided((_) => 0);
 
 void main() {
   runApp(const CounterApp());

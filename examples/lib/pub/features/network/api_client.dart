@@ -5,7 +5,7 @@ import 'package:examples/pub/features/network/http_clients.dart';
 import 'package:http/http.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refApiClient = Variable((_) {
+final refApiClient = Provided((_) {
   return ApiClient(
     baseUri: Uri.https('pub.dev', 'api'),
     httpClient: MemoryCacheClient(),

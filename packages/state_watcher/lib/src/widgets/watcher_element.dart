@@ -115,12 +115,12 @@ class _BuildStore implements BuildStore {
   }
 
   @override
-  void write<T>(Variable<T> ref, T value) {
+  void write<T>(Provided<T> ref, T value) {
     return fetchStore('write').write(ref, value);
   }
 
   @override
-  void update<T>(Variable<T> ref, Updater<T> update) {
+  void update<T>(Provided<T> ref, Updater<T> update) {
     return fetchStore('update').update(ref, update);
   }
 

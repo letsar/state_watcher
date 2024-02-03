@@ -2,7 +2,7 @@ import 'package:examples/user_devices/core/data/sources/fake_api.dart';
 import 'package:examples/user_devices/devices/data/models/device.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refDeviceApi = Variable((_) => DeviceApi());
+final refDeviceApi = Provided((_) => DeviceApi());
 
 const List<Device> _devices = <Device>[
   Device(id: 1, name: 'Device 1'),

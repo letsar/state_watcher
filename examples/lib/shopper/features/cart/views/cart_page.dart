@@ -3,7 +3,7 @@ import 'package:examples/shopper/features/refs.dart';
 import 'package:flutter/material.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final _refCurrentProductId = Variable<int>.undefined();
+final _refCurrentProductId = Provided<int>.undefined();
 final _refCurrentProduct = Computed((watch) {
   final products = watch(refProducts);
   final productId = watch(_refCurrentProductId);

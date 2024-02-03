@@ -100,13 +100,13 @@ class StoreNode extends Store {
   }
 
   @override
-  void write<T>(Variable<T> ref, T value) {
+  void write<T>(Provided<T> ref, T value) {
     final node = _fetchOrCreateNodeFromTree(ref);
     node.value = value;
   }
 
   @override
-  void update<T>(Variable<T> ref, Updater<T> update) {
+  void update<T>(Provided<T> ref, Updater<T> update) {
     write(ref, update(read(ref)));
   }
 
@@ -171,9 +171,9 @@ class StoreNode extends Store {
     }
 
     final node = switch (ref) {
-      // For a Variable the rule is to fetch the value from the
+      // For a Provided the rule is to fetch the value from the
       // root store.
-      Variable<T>() => () {
+      Provided<T>() => () {
           final parent = this.parent;
           if (parent == null) {
             // We can get the value from this store.
@@ -355,11 +355,11 @@ abstract class Node<T> {
 }
 
 @internal
-class VariableNode<T> extends Node<T> {
-  VariableNode(this.ref, super.store);
+class ProvidedNode<T> extends Node<T> {
+  ProvidedNode(this.ref, super.store);
 
   @override
-  Variable<T> ref;
+  Provided<T> ref;
 
   @override
   void init() {
@@ -367,7 +367,7 @@ class VariableNode<T> extends Node<T> {
     _value = _createValue(ref);
   }
 
-  T _createValue(Variable<T> ref) {
+  T _createValue(Provided<T> ref) {
     final value = ref._create(store.read);
     if (value is StateLogic) {
       value._init(store);
@@ -380,8 +380,8 @@ class VariableNode<T> extends Node<T> {
 
   @override
   void updateFromOverrides(
-    covariant Variable<T> oldOverride,
-    covariant Variable<T> newOverride,
+    covariant Provided<T> oldOverride,
+    covariant Provided<T> newOverride,
   ) {
     final oldValue = _createValue(oldOverride);
     final newValue = _createValue(newOverride);

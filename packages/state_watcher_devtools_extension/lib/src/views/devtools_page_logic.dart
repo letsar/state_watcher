@@ -3,8 +3,8 @@ import 'package:state_watcher_devtools_extension/src/global_state_logic.dart';
 import 'package:state_watcher_devtools_extension/src/models.dart';
 import 'package:vm_service/vm_service.dart';
 
-final refSelectedNodeValue = Variable<InstanceRef?>((_) => null);
-final refSelectedNodeId = Variable<String?>((_) => null);
+final refSelectedNodeValue = Provided<InstanceRef?>((_) => null);
+final refSelectedNodeId = Provided<String?>((_) => null);
 final refSelectedNode = Computed((watch) {
   final id = watch(refSelectedNodeId);
   return id == null ? null : watch(refAllNodes)[id];
@@ -25,7 +25,7 @@ final refSelectedNodeDependencyIds = Computed((watch) {
   return result;
 });
 final refNodeTitle = Computed.withParameter(
-  (watch, Variable<Node> nodeRef) {
+  (watch, Provided<Node> nodeRef) {
     final node = watch(nodeRef);
 
     if (node.nodeType != NodeType.watcher) {
@@ -36,8 +36,8 @@ final refNodeTitle = Computed.withParameter(
   },
 );
 
-final refTrackDependencies = Variable((_) => false);
-final refDevtoolsPageLogic = Variable((_) => DevToolsPageLogic());
+final refTrackDependencies = Provided((_) => false);
+final refDevtoolsPageLogic = Provided((_) => DevToolsPageLogic());
 
 class DevToolsPageLogic with StateLogic {
   DevToolsPageLogic();

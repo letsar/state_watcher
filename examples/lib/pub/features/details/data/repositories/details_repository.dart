@@ -2,7 +2,7 @@ import 'package:examples/pub/features/details/data/models/package_metrics_score.
 import 'package:examples/pub/features/details/data/sources/details_api.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refDetailsRepository = Variable((read) {
+final refDetailsRepository = Provided((read) {
   final detailsApi = read(refDetailsApi);
   return DetailsRepository(detailsApi: detailsApi);
 });

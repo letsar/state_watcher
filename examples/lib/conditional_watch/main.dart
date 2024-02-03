@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final _refCounterA = Variable((_) => 0, debugName: 'counterA');
-final _refCounterB = Variable((_) => 0, debugName: 'counterB');
-final _refCounterX = Variable((_) => _refCounterA, debugName: 'counterX');
-final _refAppStateLogic = Variable((_) => AppStateLogic());
+final _refCounterA = Provided((_) => 0, debugName: 'counterA');
+final _refCounterB = Provided((_) => 0, debugName: 'counterB');
+final _refCounterX = Provided((_) => _refCounterA, debugName: 'counterX');
+final _refAppStateLogic = Provided((_) => AppStateLogic());
 
 class AppStateLogic with StateLogic {
   AppStateLogic();
 
-  void setCounterRef(Variable<int> ref) {
+  void setCounterRef(Provided<int> ref) {
     write(_refCounterX, ref);
   }
 
-  void incrementCounter(Variable<int> refToCounter) {
+  void incrementCounter(Provided<int> refToCounter) {
     update(refToCounter, (x) => x + 1);
   }
 }
@@ -96,10 +96,10 @@ class _SelectableCounter extends WatcherStatelessWidget {
     required this.refCounter,
   });
 
-  final Variable<int> refCounter;
+  final Provided<int> refCounter;
 
   static final _refBackgroundColor = Computed.withParameter(
-    (watch, Variable<int> refCounter) {
+    (watch, Provided<int> refCounter) {
       final refCurrentCounter = watch(_refCounterX);
       return refCurrentCounter == refCounter
           ? Colors.green
@@ -136,7 +136,7 @@ class _Counter extends StatelessWidget {
     required this.refCounter,
   });
 
-  final Variable<int> refCounter;
+  final Provided<int> refCounter;
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +178,7 @@ class _CounterIncrementButton extends WatcherStatelessWidget {
     required this.refCounter,
   });
 
-  final Variable<int> refCounter;
+  final Provided<int> refCounter;
 
   @override
   Widget build(BuildContext context, BuildStore store) {

@@ -12,7 +12,7 @@ void main() {
   group('StateObserver', () {
     test('should call didStateCreated when state created', () {
       final store = StoreNode(observers: [observer]);
-      final a = Variable((_) => 4, debugName: 'a');
+      final a = Provided((_) => 4, debugName: 'a');
       expect(observer.logs, isEmpty);
       store.read(a);
       expect(observer.logs, ['didStateCreated a with 4']);
@@ -20,7 +20,7 @@ void main() {
 
     test('should call didStateUpdated when state updated', () {
       final store = StoreNode(observers: [observer]);
-      final a = Variable((_) => 4, debugName: 'a');
+      final a = Provided((_) => 4, debugName: 'a');
       expect(observer.logs, isEmpty);
       store.read(a);
       store.write(a, 5);
@@ -32,7 +32,7 @@ void main() {
 
     test('should call didStateDeleted when state deleted', () {
       final store = StoreNode(observers: [observer]);
-      final a = Variable((_) => 4, debugName: 'a');
+      final a = Provided((_) => 4, debugName: 'a');
       expect(observer.logs, isEmpty);
       store.read(a);
       store.delete(a);

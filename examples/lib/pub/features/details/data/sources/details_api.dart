@@ -3,7 +3,7 @@ import 'package:examples/pub/features/details/data/models/package_metrics_score.
 import 'package:examples/pub/features/network/api_client.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refDetailsApi = Variable((read) {
+final refDetailsApi = Provided((read) {
   final client = read(refApiClient);
   return DetailsApi(client: client);
 });

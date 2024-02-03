@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final _refCurrentProduct = Variable<Product>.undefined();
+final _refCurrentProduct = Provided<Product>.undefined();
 
 class CatalogPage extends WatcherStatelessWidget {
   const CatalogPage({super.key});

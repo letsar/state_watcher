@@ -21,9 +21,9 @@ final refAssignedCurrentUserDevices = Computed((watch) {
   return user.deviceIds.map((id) => devices[id]).whereType<Device>().toList();
 });
 
-final refCurrentDeviceList = Variable<List<Device>>.undefined();
-final refCurrentDevice = Variable<Device>.undefined();
-final refCurrentUser = Variable<User>.undefined();
+final refCurrentDeviceList = Provided<List<Device>>.undefined();
+final refCurrentDevice = Provided<Device>.undefined();
+final refCurrentUser = Provided<User>.undefined();
 
 /// A widget.
 class AssignmentPage extends StatelessWidget {

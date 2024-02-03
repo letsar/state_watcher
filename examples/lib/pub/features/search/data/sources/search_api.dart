@@ -2,7 +2,7 @@ import 'package:examples/pub/features/network/api_client.dart';
 import 'package:examples/pub/features/search/data/models/search_response.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refSearchApi = Variable((read) {
+final refSearchApi = Provided((read) {
   final client = read(refApiClient);
   return SearchApi(client: client);
 });

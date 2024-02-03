@@ -5,14 +5,14 @@ import 'package:examples/pub/features/pagination/data/models/paginated_data.dart
 import 'package:examples/pub/features/search/data/repositories/search_repository.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refSearchPageLogic = Variable((read) {
+final refSearchPageLogic = Provided((read) {
   return SearchPageLogic(
     searchRepository: read(refSearchRepository),
   );
 });
 
-final refPaginatedSearchResults = Variable((_) => const SearchResults.empty());
-final refPackageNameToPackage = Variable((_) => const <String, Package>{});
+final refPaginatedSearchResults = Provided((_) => const SearchResults.empty());
+final refPackageNameToPackage = Provided((_) => const <String, Package>{});
 
 class SearchPageLogic with StateLogic {
   SearchPageLogic({

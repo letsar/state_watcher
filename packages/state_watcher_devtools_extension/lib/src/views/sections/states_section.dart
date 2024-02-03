@@ -7,9 +7,9 @@ import 'package:state_watcher_devtools_extension/src/views/widgets/dev_tools_cle
 import 'package:state_watcher_devtools_extension/src/views/widgets/named_icon.dart';
 import 'package:state_watcher_devtools_extension/src/views/widgets/section.dart';
 
-final _refCurrentNode = Variable<Node>.undefined();
+final _refCurrentNode = Provided<Node>.undefined();
 
-final _refFilter = Variable((_) => '');
+final _refFilter = Provided((_) => '');
 
 final _refNodeList = Computed(
   (watch) {

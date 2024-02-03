@@ -68,10 +68,10 @@ class _Product extends StatelessWidget {
 
 Since we must not create a Computed inside a build method, how can we get a Computed which depends on productId?
 
-One way to do it is to have a specific Variable for the current product id and to override it in a StateStore:
+One way to do it is to have a specific Provided for the current product id and to override it in a StateStore:
 
 ```dart
-final refCurrentProductId = Variable<String>.undefined();
+final refCurrentProductId = Provided<String>.undefined();
 final refCurrentProduct = Computed((watch){
   final currentProductId = watch(refCurrentProductId);
   final productIdToProduct = watch(refProductIdToProduct);

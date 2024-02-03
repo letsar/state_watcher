@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 enum NodeType {
-  variable('V', 'Variable', Color(0xFFd0f4de)),
+  provided('P', 'Provided', Color(0xFFd0f4de)),
   computed('C', 'Computed', Color(0xFFa9def9)),
   watcher('W', 'Watcher', Color(0xFFfcf6bd));
 
@@ -77,7 +77,7 @@ class Node {
 
 NodeType _nodeTypeFromRefTypeAndLocation(String refType) {
   return switch (refType) {
-    'Variable' => NodeType.variable,
+    'Provided' => NodeType.provided,
     'Observed' => NodeType.watcher,
     _ => NodeType.computed,
   };

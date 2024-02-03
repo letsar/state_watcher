@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final _refCounter = Variable((_) => 0);
+final _refCounter = Provided((_) => 0);
 
 void main() {
   runApp(const CounterApp());

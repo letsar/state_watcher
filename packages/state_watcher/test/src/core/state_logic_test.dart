@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:state_watcher/src/core/refs.dart';
 
-final _refLogic = Variable((_) => _StateLogic());
+final _refLogic = Provided((_) => _StateLogic());
 bool deleted = false;
 
 void main() {
@@ -10,29 +10,29 @@ void main() {
       final store = StoreNode();
       final logic = store.read(_refLogic);
       expect(logic, isNotNull);
-      expect(logic.readVariable(), equals(4));
+      expect(logic.readProvided(), equals(4));
     });
 
     test('should be able to write', () {
       final store = StoreNode();
       final logic = store.read(_refLogic);
-      logic.writeVariable(5);
-      expect(logic.readVariable(), equals(5));
+      logic.writeProvided(5);
+      expect(logic.readProvided(), equals(5));
     });
 
     test('should be able to update', () {
       final store = StoreNode();
       final logic = store.read(_refLogic);
-      logic.updateVariable((value) => value + 1);
-      expect(logic.readVariable(), equals(5));
+      logic.updateProvided((value) => value + 1);
+      expect(logic.readProvided(), equals(5));
     });
 
     test('should be able to delete', () {
       final store = StoreNode();
       final logic = store.read(_refLogic);
-      logic.writeVariable(5);
-      logic.deleteVariable();
-      expect(logic.readVariable(), 4);
+      logic.writeProvided(5);
+      logic.deleteProvided();
+      expect(logic.readProvided(), 4);
     });
 
     test('should be able to be disposed', () {
@@ -46,18 +46,18 @@ void main() {
   });
 }
 
-final variable = Variable((_) => 4);
+final provided = Provided((_) => 4);
 
 class _StateLogic with StateLogic {
   _StateLogic();
 
-  int readVariable() => read(variable);
+  int readProvided() => read(provided);
 
-  void writeVariable(int value) => write(variable, value);
+  void writeProvided(int value) => write(provided, value);
 
-  void updateVariable(int Function(int) updater) => update(variable, updater);
+  void updateProvided(int Function(int) updater) => update(provided, updater);
 
-  void deleteVariable() => delete(variable);
+  void deleteProvided() => delete(provided);
 
   @override
   void dispose() {

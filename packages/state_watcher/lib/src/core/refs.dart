@@ -66,7 +66,7 @@ sealed class Ref<T> {
   /// Whether the associated bit of state should be deleted when it is no longer
   /// used.
   ///
-  /// Defaults to `false` for [Variable] and `true` for [Computed].
+  /// Defaults to `false` for [Provided] and `true` for [Computed].
   final bool autoDispose;
 
   /// The function used to determine whether an update should refresh dependents.
@@ -90,14 +90,15 @@ bool _defaultUpdateShouldNotify<T>(T a, T b) {
   return !const DeepCollectionEquality().equals(a, b);
 }
 
-/// A bit of state that can be read from and written to.
-class Variable<T> extends Ref<T> {
+/// A bit of state provided by the developper, that can be read from and written
+/// to.
+class Provided<T> extends Ref<T> {
   /// Creates a reference to a state which will be created later using the
   /// [create] function.
   ///
   /// The [create] function has a [read] parameter which can be used to read
   /// other states.
-  Variable(
+  Provided(
     T Function(Reader read) create, {
     String? debugName,
     bool? autoDispose,
@@ -105,7 +106,7 @@ class Variable<T> extends Ref<T> {
   }) : this._fromMetadata(
           create,
           metadata: Metadata(
-            refType: 'Variable',
+            refType: 'Provided',
             valueType: '$T',
             debugName: debugName,
           ),
@@ -113,22 +114,22 @@ class Variable<T> extends Ref<T> {
           updateShouldNotify: updateShouldNotify,
         );
 
-  /// Creates a new [Variable] which undefined value.
+  /// Creates a new [Provided] which undefined value.
   ///
-  /// This is useful when you want to create a [Variable] that will be defined
+  /// This is useful when you want to create a [Provided] that will be defined
   /// later, through an override in a store.
-  Variable.undefined({
+  Provided.undefined({
     String? debugName,
     bool? autoDispose,
     AreDifferent<T>? updateShouldNotify,
   }) : this(
-          _undefinedVariable,
+          _undefinedProvided,
           debugName: debugName,
           autoDispose: autoDispose,
           updateShouldNotify: updateShouldNotify,
         );
 
-  Variable._fromMetadata(
+  Provided._fromMetadata(
     T Function(Reader read) create, {
     required super.metadata,
     super.autoDispose,
@@ -136,10 +137,10 @@ class Variable<T> extends Ref<T> {
   })  : _create = create,
         super(id: metadata);
 
-  /// Creates a new [Variable] with the given value, used to override the
-  /// value of this [Variable] in a store.
-  Variable<T> overrideWithValue(T value) {
-    return Variable._fromMetadata(
+  /// Creates a new [Provided] with the given value, used to override the
+  /// value of this [Provided] in a store.
+  Provided<T> overrideWithValue(T value) {
+    return Provided._fromMetadata(
       (_) => value,
       metadata: metadata,
       autoDispose: autoDispose,
@@ -147,10 +148,10 @@ class Variable<T> extends Ref<T> {
     );
   }
 
-  /// Creates a new [Variable] with the given creation funciton, used to
-  /// override the creation of this [Variable] in a store.
-  Variable<T> overrideWith(T Function(Reader read) create) {
-    return Variable._fromMetadata(
+  /// Creates a new [Provided] with the given creation funciton, used to
+  /// override the creation of this [Provided] in a store.
+  Provided<T> overrideWith(T Function(Reader read) create) {
+    return Provided._fromMetadata(
       create,
       metadata: metadata,
       autoDispose: autoDispose,
@@ -162,7 +163,7 @@ class Variable<T> extends Ref<T> {
 
   @override
   Node<T> _createNode(StoreNode store) {
-    return VariableNode<T>(this, store);
+    return ProvidedNode<T>(this, store);
   }
 }
 
@@ -349,8 +350,8 @@ class ObservedLocation {
   }
 }
 
-Never _undefinedVariable(Reader read) {
-  throw StateError('Undefined variable');
+Never _undefinedProvided(Reader read) {
+  throw StateError('Undefined provided');
 }
 
 /// Signature for updating a state.
@@ -368,11 +369,11 @@ abstract class Store {
   T read<T>(Ref<T> ref);
 
   /// Writes the [value] associated with [ref] in this [Store].
-  void write<T>(Variable<T> ref, T value);
+  void write<T>(Provided<T> ref, T value);
 
   /// Updates the value associated with [ref] in this [Store] using the
   /// [updater].
-  void update<T>(Variable<T> ref, Updater<T> update);
+  void update<T>(Provided<T> ref, Updater<T> update);
 
   /// Deletes the value associated with [ref] from this [Store].
   void delete<T>(Ref<T> ref);

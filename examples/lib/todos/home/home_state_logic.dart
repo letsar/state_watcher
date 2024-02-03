@@ -2,7 +2,7 @@ import 'package:state_watcher/state_watcher.dart';
 
 import '../entities/todo.dart';
 
-final refTodoList = Variable(
+final refTodoList = Provided(
   debugName: 'todoList',
   (_) => <Todo>[
     Todo(id: 'todo-0', description: 'hello'),
@@ -10,11 +10,11 @@ final refTodoList = Variable(
     Todo(id: 'todo-2', description: 'bonjour'),
   ],
 );
-final refTodoListFilter = Variable(
+final refTodoListFilter = Provided(
   debugName: 'todoListFilter',
   (_) => TodoListFilter.all,
 );
-final refHomeStateLogic = Variable(
+final refHomeStateLogic = Provided(
   debugName: 'homeStateLogic',
   (_) => HomeStateLogic(),
 );

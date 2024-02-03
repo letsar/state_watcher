@@ -15,12 +15,12 @@ mixin StateLogic implements Disposable {
   }
 
   /// Writes the [value] associated with the [ref].
-  void write<T>(Variable<T> ref, T value) {
+  void write<T>(Provided<T> ref, T value) {
     _store.write(ref, value);
   }
 
   /// Updates the value associated with the [ref] using the [updater].
-  void update<T>(Variable<T> ref, Updater<T> updater) {
+  void update<T>(Provided<T> ref, Updater<T> updater) {
     _store.update(ref, updater);
   }
 

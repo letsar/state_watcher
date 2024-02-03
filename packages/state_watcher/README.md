@@ -15,11 +15,11 @@ A simple, yet powerful reactive state management solution for Flutter applicatio
 
 We can see an application state as the agglomeration of a multitude of tiny states. At the core of this vision, we have independent states we can read and write. For example in the counter app, the whole application has only one indepedent state: *the counter*.
 
-In **state_watcher**, such a state is declared by a `Variable`:
+In **state_watcher**, such a state is declared by a `Provided`:
 
 ```dart
 // We declare here a state which has an initial value of 0, and it can be referenced through `refCounter`.
-final refCounter = Variable((_) => 0);
+final refCounter = Provided((_) => 0);
 ```
 
 The actual state is stored in something called a **Store**. For that, in Flutter, we can declare a new store, in the widget tree, with a `StateStore` widget:
@@ -91,7 +91,7 @@ final refDivisibleByThree = Computed((watch) {
 });
 ```
 
-And we can watch it like a `Variable`:
+And we can watch it like a `Provided`:
 
 ```dart
 class _DivisibleByThree extends WatcherStatelessWidget {
