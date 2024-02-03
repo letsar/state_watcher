@@ -2,6 +2,7 @@ part of 'refs.dart';
 
 const _prefix = 'ext.state_watcher';
 
+// coverage:ignore-start
 @internal
 class StateInspector {
   StateInspector._();
@@ -70,3 +71,4 @@ class StateInspector {
     }
   }
 }
+// coverage:ignore-end

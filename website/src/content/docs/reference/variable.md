@@ -5,9 +5,7 @@ sidebar:
   order: 2
 ---
 
-A Variable reference an independent state which can be manually updated over time.
-
-It can safely be globally declared since its state is located in a store and not in the Variable itself.
+A Variable references an independent state which can be manually updated over time.
 
 A Variable can be easily declared:
 ```dart
@@ -41,4 +39,18 @@ store.write(refVariable, 10);
 // To write a new value which depends of the previous one:
 store.update(refVariable, (x) => x + 1);
 ```
+
+:::tip
+Since the state referenced by a Variable is located in a store, a Variable can, and should be declared at top-level or with the `static` modifier.
+:::
+
+:::danger
+In particular do not create a Variable inside a build method, it could lead to unexpected behavior and memory leaks.
+:::
+
+:::note
+By default a Variable's state **is not** removed automatically from the store when it is no longer used. It's up to you to delete it when you want.
+
+This decision has been made because the state of a Variable is important and cannot be retrieved if it's deleted.
+:::
 

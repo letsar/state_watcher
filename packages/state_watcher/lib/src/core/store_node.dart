@@ -1,5 +1,14 @@
 part of 'refs.dart';
 
+bool _isStateWatcherDevToolsEnabled = true;
+
+// coverage:ignore-start
+/// Call this method to disable DevTools in DebugMode.
+void disableStateWatcherDevTools() {
+  _isStateWatcherDevToolsEnabled = false;
+}
+// coverage:ignore-end
+
 /// Object containing the actual states referenced by [Ref] instances.
 ///
 /// Can have a parent store.
@@ -96,7 +105,7 @@ class StoreNode extends Store {
   /// dependencies can be updated in Flutter.
   void refresh<T>(Computed<T> ref) {
     final node = _fetchOrCreateNodeFromTree(ref);
-    if (kDebugMode) {
+    if (kDebugMode && _isStateWatcherDevToolsEnabled) {
       StateInspector.instance.mutePostUpdateEvent(() {
         node.update();
       });
@@ -194,7 +203,7 @@ class StoreNode extends Store {
     for (final observer in _observers) {
       observer.didStateCreated(node.store, node.ref, node.value);
     }
-    if (kDebugMode && parent == null) {
+    if (kDebugMode && parent == null && _isStateWatcherDevToolsEnabled) {
       StateInspector.instance.didStateCreated(node);
     }
     parent?._stateCreated(node);
@@ -212,7 +221,7 @@ class StoreNode extends Store {
     for (final observer in _observers) {
       observer.didStateDeleted(node.store, node.ref);
     }
-    if (kDebugMode && parent == null) {
+    if (kDebugMode && parent == null && _isStateWatcherDevToolsEnabled) {
       StateInspector.instance.didStateDeleted(node);
     }
     parent?._stateDeleted(node);
@@ -273,7 +282,9 @@ abstract class Node<T> {
 
     final shouldUpdateDependents = ref.updateShouldNotify(oldValue, newValue);
 
-    if (kDebugMode && (shouldUpdateDependents || _shouldNotifyInspector)) {
+    if (kDebugMode &&
+        _isStateWatcherDevToolsEnabled &&
+        (shouldUpdateDependents || _shouldNotifyInspector)) {
       StateInspector.instance.didStateUpdated(this);
       _shouldNotifyInspector = false;
     }

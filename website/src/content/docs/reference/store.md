@@ -45,7 +45,7 @@ StateStore(
 );
 ```
 
-If you want to override some Variables in a `StateScope`, you have a `overrides` set for that:
+If you want to override some Variables in a `StateStore`, you have a `overrides` set for that:
 ```dart
 StateStore(
   overrides: {
