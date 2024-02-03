@@ -1,6 +1,6 @@
 export 'src/core/disposable.dart';
 export 'src/core/refs.dart'
-    show AreDifferent, Computed, Ref, StateLogic, Store, Updater, Provided;
+    show AreDifferent, Computed, Provided, Ref, StateLogic, Store, Updater;
 export 'src/core/state_observer.dart';
 export 'src/widgets/build_store.dart';
 export 'src/widgets/state_store.dart' show StateStore;
