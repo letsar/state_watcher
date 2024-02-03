@@ -12,9 +12,9 @@ typedef StateChanged<T> = void Function(
 
 /// Listen to the changes of [ref] and call [onStateChanged] when the state
 /// changes.
-class StateListener<T> extends WatcherStatefulWidget {
-  /// Creates a new [StateListener].
-  const StateListener({
+class WatcherEffect<T> extends WatcherStatefulWidget {
+  /// Creates a new [WatcherEffect].
+  const WatcherEffect({
     super.key,
     required this.ref,
     required this.onStateChanged,
@@ -35,10 +35,10 @@ class StateListener<T> extends WatcherStatefulWidget {
   final Widget? child;
 
   @override
-  State<StateListener<T>> createState() => _StateListenerState<T>();
+  State<WatcherEffect<T>> createState() => _WatcherEffectState<T>();
 }
 
-class _StateListenerState<T> extends State<StateListener<T>> {
+class _WatcherEffectState<T> extends State<WatcherEffect<T>> {
   bool initialized = false;
   late T oldValue;
   Computed<void>? computed;
@@ -68,7 +68,7 @@ class _StateListenerState<T> extends State<StateListener<T>> {
         // We always want to notify the Inspector in debug mode.
         return kDebugMode;
       },
-      debugName: widget.debugName,
+      debugName: widget.debugName ?? 'WatcherEffect[${widget.ref.debugName}]',
     );
     // Read the ref to create the computed.
     computed = newComputed;
@@ -76,7 +76,7 @@ class _StateListenerState<T> extends State<StateListener<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant StateListener<T> oldWidget) {
+  void didUpdateWidget(covariant WatcherEffect<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.ref.id != widget.ref.id) {
       initialized = false;

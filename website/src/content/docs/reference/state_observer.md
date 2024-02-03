@@ -2,7 +2,7 @@
 title: StateObserver
 description: What is StateObserver.
 sidebar:
-  order: 7
+  order: 6
 ---
 
 It can be useful to be able to observe all the state changes in a store (for logging purpose for example).

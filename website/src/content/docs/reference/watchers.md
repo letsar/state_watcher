@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-Watchers are the fundamental part for rebuilding your widgets when a part of your state changes.
+Watchers are the fundamental part for interacting with Flutter when a part of your state changes.
 
 If you just want to watch the state in a widget you can use the `WatcherBuilder` widget:
 
@@ -68,6 +68,18 @@ class _IncrementButton extends WatcherStatelessWidget {
     );
   }
 }
+```
+
+Sometimes we don't want to rebuild the UI but we want to execute some code when a state changes.
+In this case we can use the `WatcherEffect` widget:
+
+```dart
+return WatcherEffect(
+  ref: refCounter,
+  onStateChanged: (context, oldValue, newValue) {
+    // Do whatever you want with when the value changes.
+  },
+);
 ```
 
 We will see how to separate the business logic from the UI in the next chapter.

@@ -24,10 +24,6 @@ mixin WatcherElement on ComponentElement {
       onStateChanged,
       location: location,
       debugName: effectiveDebugName,
-      updateShouldNotify: (_, __) {
-        // We always want to notify the Inspector in debug mode.
-        return kDebugMode;
-      },
     );
   }
 

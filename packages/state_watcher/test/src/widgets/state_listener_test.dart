@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:state_watcher/src/core/refs.dart';
 import 'package:state_watcher/src/widgets/build_store.dart';
-import 'package:state_watcher/src/widgets/state_listener.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
 import 'package:state_watcher/src/widgets/watcher_builder.dart';
+import 'package:state_watcher/src/widgets/watcher_effect.dart';
 
 void main() {
-  group('StateListener', () {
+  group('WatcherEffect', () {
     testWidgets('should immediately call onStateChanged when state changes',
         (tester) async {
       final a = Variable((_) => 4);
@@ -17,7 +17,7 @@ void main() {
         child: WatcherBuilder(
           builder: (BuildContext context, BuildStore store) {
             buildStore = store;
-            return StateListener(
+            return WatcherEffect(
               ref: a,
               onStateChanged: (context, oldValue, newValue) {
                 logs.add('$oldValue=>$newValue');
@@ -43,7 +43,7 @@ void main() {
         child: WatcherBuilder(
           builder: (BuildContext context, BuildStore store) {
             buildStore = store;
-            return StateListener(
+            return WatcherEffect(
               ref: a,
               onStateChanged: (context, oldValue, newValue) {
                 logs.add('$oldValue=>$newValue');
@@ -81,7 +81,7 @@ void main() {
             key: const ValueKey(2),
             builder: (BuildContext context, BuildStore store) {
               buildStore = store;
-              return StateListener(
+              return WatcherEffect(
                 key: const ValueKey(3),
                 ref: a,
                 onStateChanged: (context, oldValue, newValue) {
@@ -111,7 +111,7 @@ void main() {
             key: const ValueKey(2),
             builder: (BuildContext context, BuildStore store) {
               buildStore = store;
-              return StateListener(
+              return WatcherEffect(
                 key: const ValueKey(3),
                 ref: b,
                 onStateChanged: (context, oldValue, newValue) {
