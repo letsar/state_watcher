@@ -10,6 +10,8 @@
 
 A simple, yet powerful reactive state management solution for Flutter applications
 
+For a more detailed documentation hit the official [site](https://letsar.github.io/state_watcher/).
+
 # Guide
 
 We can see an application state as the agglomeration of a multitude of tiny states. At the core of this vision, we have independent states we can read and write. For example in the counter app, the whole application has only one indepedent state: *the counter*.
@@ -105,10 +107,6 @@ class _DivisibleByThree extends WatcherStatelessWidget {
 ```
 
 By default, the `_DivisibleByThree` widget is only rebuild when the new computed value is different than the previous one. So when the counter goes from 7 to 8, the `_DivisibleByThree` widget is not rebuilt because `divisibleByThree` is `false` for both values. 
-
-
-For a more detailed documentation hit the official site: // TODO.
-
 
 ## DevTools
 

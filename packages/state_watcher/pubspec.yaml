@@ -1,8 +1,9 @@
 name: state_watcher
 description: "A simple, yet powerful reactive state management solution for Flutter applications."
-version: 0.0.1
 repository:  https://github.com/letsar/state_watcher
+documentation: https://letsar.github.io/state_watcher
 homepage: https://github.com/letsar/state_watcher
+version: 0.0.1
 
 topics:
   - state-management
