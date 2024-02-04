@@ -65,7 +65,7 @@ void main() {
         expect(buildCount, equals(2));
       });
 
-      testWidgets('computed changed', (tester) async {
+      testWidgets('Computed changed', (tester) async {
         final a = Provided((_) => 0);
         final c = Computed((watch) {
           return watch(a).isEven;
@@ -92,7 +92,7 @@ void main() {
         expect(buildCount, equals(2));
       });
 
-      group('computed with parameter changed', () {
+      group('Computed with parameter changed', () {
         testWidgets('because of watched', (tester) async {
           late BuildStore buildStore;
           final logs = <int>[];
@@ -139,7 +139,7 @@ void main() {
         });
       });
 
-      testWidgets('computed with parameter correctly deleted', (tester) async {
+      testWidgets('Computed with parameter correctly deleted', (tester) async {
         final a = Provided((_) => 1);
         late BuildStore buildStore;
         final logs = <int>[];
@@ -164,6 +164,62 @@ void main() {
       });
     });
 
+    group('should not be rebuild when', () {
+      testWidgets('a ref no longer watched is updated', (tester) async {
+        final a = Provided((_) => 0);
+        final b = Provided((_) => 0);
+        final c = Provided((_) => 0);
+        final b1 = Computed((watch) {
+          return watch(b);
+        });
+        final c1 = Computed((watch) {
+          return watch(c);
+        });
+        int buildCount = 0;
+        late BuildStore buildStore;
+        final tree = StateStore(
+          child: WatcherBuilder(
+            builder: (context, store) {
+              buildCount++;
+              buildStore = store;
+              if (store.watch(a).isEven) {
+                store.watch(b1);
+              } else {
+                store.watch(c1);
+              }
+              return const SizedBox();
+            },
+          ),
+        );
+
+        await tester.pumpWidget(tree);
+        expect(buildStore.hasStateFor(b1), true);
+        expect(buildStore.hasStateFor(c1), false);
+        expect(buildCount, 1);
+
+        buildStore.write(b, 1);
+        await tester.pump();
+        expect(buildCount, 2);
+
+        buildStore.write(c, 1);
+        await tester.pump();
+        expect(buildCount, 2);
+
+        buildStore.write(a, 1);
+        await tester.pump();
+        expect(buildCount, 3);
+        expect(buildStore.hasStateFor(b1), false);
+        expect(buildStore.hasStateFor(c1), true);
+
+        buildStore.write(b, 2);
+        await tester.pump();
+        expect(buildCount, 3);
+
+        buildStore.write(c, 2);
+        await tester.pump();
+        expect(buildCount, 4);
+      });
+    });
     group('read', () {
       testWidgets('should throw if used when building', (tester) async {
         final a = Provided((_) => 0);
@@ -304,7 +360,6 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     });
-
     group('reparenting', () {
       testWidgets('should not delete ref if store is the same', (tester) async {
         late BuildStore buildStore;
