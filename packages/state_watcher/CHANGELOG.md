@@ -1,3 +1,7 @@
+## [0.0.3] 
+### Changed
+- Lower SDK version to match pana constraints.
+
 ## [0.0.2] 
 ### Fixed
 - Wrong image in README.

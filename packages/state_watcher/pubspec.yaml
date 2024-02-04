@@ -3,7 +3,7 @@ description: "A simple, yet powerful reactive state management solution for Flut
 repository:  https://github.com/letsar/state_watcher
 documentation: https://letsar.github.io/state_watcher
 homepage: https://github.com/letsar/state_watcher
-version: 0.0.2
+version: 0.0.3
 
 topics:
   - state-management
@@ -11,7 +11,7 @@ topics:
   - reactive
 
 environment:
-  sdk: '>=3.2.6 <4.0.0'
+  sdk: '>=3.2.5 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
