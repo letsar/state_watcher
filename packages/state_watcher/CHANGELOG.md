@@ -1,3 +1,7 @@
+## [0.0.5] 
+### Fixed
+- DevTools extension not working.
+
 ## [0.0.4] 
 ### Fixed
 - DevTools extension not showing.
