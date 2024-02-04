@@ -1,3 +1,7 @@
+## [0.0.4] 
+### Fixed
+- DevTools extension not showing.
+
 ## [0.0.3] 
 ### Changed
 - Lower SDK version to match pana constraints.
