@@ -13,8 +13,9 @@ A `Provided` can be easily declared:
 final refCounter = Provided((_) => 0);
 ```
 
-Sometimes a `Provided` can have some dependencies which are only read when the state is created. For example a repository can have a dependency on a api client:
+Sometimes a `Provided` can have some dependencies which are only read when the state is created. For example a repository can have a dependency on an api client:
 ```dart
+/// Use read to inject dependencies when creating your instances.
 final refRepository = Provided((read) {
   return Repository(apiClient: read(refApiClient));
 });
