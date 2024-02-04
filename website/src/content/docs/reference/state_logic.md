@@ -5,9 +5,9 @@ sidebar:
   order: 5
 ---
 
-We saw how to update our widgets and how ref, but it would be better if we could separate the whole logic of updating our states from the UI.
+We saw how to update our widgets and our refs, but it would be better if we could separate the whole logic of updating our states from the UI.
 
-In **state_watcher** we can do it by creating a Provided with an object applying a specific mixin called `StateLogic`:
+In **state_watcher** we can do it by creating a `Provided` with an object applying a specific mixin called `StateLogic`:
 
 ```dart
 final refCounter = Provided((_) => 0);

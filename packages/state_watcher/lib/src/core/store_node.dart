@@ -77,12 +77,12 @@ class StoreNode extends Store {
     node.addDependency(_fetchOrCreateNodeFromTree(ref));
   }
 
-  void unwatchAll(Observed observed) {
+  T trackDependencyChanges<T>(Observed observed, T Function() callback) {
     final node = _fetchOrCreateNodeFromTree(observed);
-    final dependencies = node._dependencies.toList();
-    for (final dependency in dependencies) {
-      node.removeDependency(dependency);
-    }
+    node.startTrackingDependencies();
+    final result = callback();
+    node.endTrackingDependencies();
+    return result;
   }
 
   @override
@@ -254,6 +254,9 @@ abstract class Node<T> {
   /// Nodes which depends on this node.
   final Set<Node<Object?>> _dependents;
 
+  Set<Node<Object?>>? _oldDependencies;
+  bool _hasDependenciesChanged = false;
+
   bool _shouldNotifyInspector = false;
 
   bool get hasDependents {
@@ -290,22 +293,45 @@ abstract class Node<T> {
     }
   }
 
-  bool addDependency(Node<Object?> dependency) {
+  void addDependency(Node<Object?> dependency) {
     dependency._throwIfDependsOn(this);
     _dependencies.add(dependency);
-    return dependency._dependents.add(this);
+    final added = dependency._dependents.add(this);
+    if (_oldDependencies case final oldDependencies?) {
+      _hasDependenciesChanged |= added;
+      oldDependencies.remove(dependency);
+    }
   }
 
-  bool removeDependency(Node<Object?> dependency) {
+  void removeDependency(Node<Object?> dependency) {
     _dependencies.remove(dependency);
-    final result = dependency._dependents.remove(this);
+    dependency._dependents.remove(this);
 
     if (!dependency.hasDependents && dependency.ref.autoDispose) {
       // If the dependency has no longer dependents, maybe we can remove from
       // its store.
       dependency.detach();
     }
-    return result;
+  }
+
+  void startTrackingDependencies() {
+    _oldDependencies = _dependencies.toSet();
+    _hasDependenciesChanged = false;
+  }
+
+  void endTrackingDependencies() {
+    if (_oldDependencies case final oldDependencies?) {
+      if (kDebugMode) {
+        _hasDependenciesChanged |= oldDependencies.isNotEmpty;
+      }
+      for (final dependency in oldDependencies) {
+        // The remaining dependencies are no longer dependencies.
+        removeDependency(dependency);
+      }
+
+      // We need to notify the inspector if the dependencies changed.
+      _shouldNotifyInspector = kDebugMode && _hasDependenciesChanged;
+    }
   }
 
   void _throwIfDependsOn(Node<Object?> node) {
@@ -414,27 +440,15 @@ class ComputedNode<T> extends Node<T> {
   }
 
   T compute() {
-    final oldDependencies = _dependencies.toSet();
-    bool dependenciesChanged = false;
-
     X watch<X>(Ref<X> ref) {
       final node = store._fetchOrCreateNodeFromTree(ref);
-      dependenciesChanged |= addDependency(node);
-      oldDependencies.remove(node);
+      addDependency(node);
       return node.value;
     }
 
+    startTrackingDependencies();
     final value = ref._compute(watch);
-    if (kDebugMode) {
-      dependenciesChanged |= oldDependencies.isNotEmpty;
-    }
-    for (final dependency in oldDependencies) {
-      // The remaining dependencies are no longer dependencies.
-      removeDependency(dependency);
-    }
-
-    // We need to notify the inspector if the dependencies changed.
-    _shouldNotifyInspector = kDebugMode && dependenciesChanged;
+    endTrackingDependencies();
 
     return value;
   }

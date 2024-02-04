@@ -6,6 +6,8 @@ import 'package:state_watcher/src/widgets/state_store.dart';
 import 'package:state_watcher/src/widgets/watcher_builder.dart';
 import 'package:state_watcher/src/widgets/watcher_stateful_widget.dart';
 
+import '../common/delegated_observer.dart';
+
 void main() {
   group('Watcher', () {
     group('watch', () {
@@ -39,6 +41,83 @@ void main() {
           expect(tester.takeException(), isNull);
         },
       );
+      testWidgets('should not remove computed accross build', (tester) async {
+        final a = Provided((_) => 0);
+        final b = Computed((watch) => watch(a));
+        bool removed = false;
+        final observer = DelegatedStateObserver(
+          onStateDeleted: (store, ref) {
+            if (ref == b) {
+              removed = true;
+            }
+          },
+        );
+        late BuildStore buildStore;
+        final tree = StateStore(
+          observers: [observer],
+          child: WatcherBuilder(
+            builder: (context, store) {
+              buildStore = store;
+              store.watch(b);
+              return const SizedBox();
+            },
+          ),
+        );
+        await tester.pumpWidget(tree);
+        buildStore.write(a, 5);
+        await tester.pumpWidget(tree);
+        expect(removed, isFalse);
+      });
+
+      testWidgets('should remove computed if not longer watched',
+          (tester) async {
+        final a = Provided((_) => 0);
+        final b = Provided((_) => 0);
+        final c = Provided((_) => 0);
+        final b1 = Computed((watch) {
+          return watch(b);
+        });
+        final c1 = Computed((watch) {
+          return watch(c);
+        });
+        final removed = <Ref<Object?>>{};
+        final observer = DelegatedStateObserver(
+          onStateCreated: (store, ref, _) {
+            removed.remove(ref);
+          },
+          onStateDeleted: (store, ref) {
+            removed.add(ref);
+          },
+        );
+        late BuildStore buildStore;
+        final tree = StateStore(
+          observers: [observer],
+          child: WatcherBuilder(
+            builder: (context, store) {
+              buildStore = store;
+              buildStore = store;
+              if (store.watch(a).isEven) {
+                store.watch(b1);
+              } else {
+                store.watch(c1);
+              }
+              store.watch(b);
+              return const SizedBox();
+            },
+          ),
+        );
+        await tester.pumpWidget(tree);
+        expect(removed, isEmpty);
+        buildStore.write(a, 5);
+        await tester.pumpWidget(tree);
+        expect(removed, {b1});
+        buildStore.write(a, 6);
+        await tester.pumpWidget(tree);
+        expect(removed, {c1});
+        buildStore.write(a, 7);
+        await tester.pumpWidget(tree);
+        expect(removed, {b1});
+      });
     });
     group('should be rebuilt only when', () {
       testWidgets('Provided changed', (tester) async {

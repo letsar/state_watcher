@@ -12,7 +12,8 @@ If you just want to watch the state in a widget you can use the `WatcherBuilder`
 ```dart
 WatcherBuilder(
   builder: (context, store) {
-    // Just use the watch method of the scope to get the value of counter and rebuild when it changes.
+    // Just use the watch method of the store to get the value of counter
+    // and rebuild when it changes.
     final counter = store.watch(refCounter);
     return Text('$counter');
   },
@@ -77,7 +78,7 @@ In this case we can use the `WatcherEffect` widget:
 return WatcherEffect(
   ref: refCounter,
   onStateChanged: (context, oldValue, newValue) {
-    // Do whatever you want with when the value changes.
+    // Do whatever you want when the value changes.
   },
 );
 ```

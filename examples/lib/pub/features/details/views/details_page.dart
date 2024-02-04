@@ -21,7 +21,7 @@ class DetailsPage extends WatcherStatelessWidget {
 
   final String packageName;
 
-  static final _refPackage = Computed.withParameter(
+  static final _computedPackageByPackageName = Computed.withParameter(
     (watch, String packageName) {
       return watch(refPackageNameToPackage)[packageName]!;
     },
@@ -29,7 +29,7 @@ class DetailsPage extends WatcherStatelessWidget {
 
   @override
   Widget build(BuildContext context, BuildStore store) {
-    final package = store.watch(_refPackage(packageName));
+    final package = store.watch(_computedPackageByPackageName(packageName));
 
     return StateStore(
       overrides: {

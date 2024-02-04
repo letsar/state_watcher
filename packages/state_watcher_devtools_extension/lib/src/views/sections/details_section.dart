@@ -123,7 +123,7 @@ class _NodeName extends WatcherStatelessWidget {
         const SizedBox(width: 4),
         Flexible(
           child: Text(
-            store.watch(refNodeTitle(_refCurrentNode)),
+            store.watch(computedNodeTitle(_refCurrentNode)),
             overflow: TextOverflow.ellipsis,
           ),
         ),

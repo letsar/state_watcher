@@ -165,7 +165,7 @@ class TodoFilterTab extends WatcherStatelessWidget {
   final TodoListFilter filter;
   final String label;
 
-  static final _refIsSelected = Computed.withParameter(
+  static final _computedIsSelectedByFilter = Computed.withParameter(
     (watch, TodoListFilter filter) {
       final TodoListFilter currentFilter = watch(refTodoListFilter);
       return currentFilter == filter;
@@ -175,7 +175,7 @@ class TodoFilterTab extends WatcherStatelessWidget {
 
   @override
   Widget build(BuildContext context, BuildStore store) {
-    final isSelected = store.watch(_refIsSelected(filter));
+    final isSelected = store.watch(_computedIsSelectedByFilter(filter));
 
     return Tooltip(
       message: tooltip,

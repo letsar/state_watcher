@@ -98,7 +98,7 @@ class _SelectableCounter extends WatcherStatelessWidget {
 
   final Provided<int> refCounter;
 
-  static final _refBackgroundColor = Computed.withParameter(
+  static final _computedBackgroundColor = Computed.withParameter(
     (watch, Provided<int> refCounter) {
       final refCurrentCounter = watch(_refCounterX);
       return refCurrentCounter == refCounter
@@ -115,7 +115,8 @@ class _SelectableCounter extends WatcherStatelessWidget {
       },
       child: WatcherBuilder(
         builder: (context, store) {
-          final backgroundColor = store.watch(_refBackgroundColor(refCounter));
+          final backgroundColor =
+              store.watch(_computedBackgroundColor(refCounter));
 
           return ColoredBox(
             color: backgroundColor,

@@ -78,10 +78,7 @@ mixin WatcherElement on ComponentElement {
 
   @override
   Widget build() {
-    // We need to clear the dependencies before building the widget in case we
-    // have conditional dependencies.
-    store.unwatchAll(observed);
-    return super.build();
+    return store.trackDependencyChanges(observed, super.build);
   }
 }
 

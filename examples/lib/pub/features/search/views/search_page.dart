@@ -111,7 +111,8 @@ class _PackageState extends State<_Package> {
     store.read(refSearchPageLogic).loadPackage(widget.index);
   }
 
-  static final _refPackage = Computed.withParameter((watch, int index) {
+  static final _computedPackageByIndex =
+      Computed.withParameter((watch, int index) {
     final results = watch(refPaginatedSearchResults);
     final packages = results.results.data;
     if (packages == null || packages.length <= index) {
@@ -122,7 +123,7 @@ class _PackageState extends State<_Package> {
 
   @override
   Widget build(BuildContext context) {
-    final package = store.watch(_refPackage(widget.index));
+    final package = store.watch(_computedPackageByIndex(widget.index));
 
     if (package == null) {
       return const _PackageItemShimmer();

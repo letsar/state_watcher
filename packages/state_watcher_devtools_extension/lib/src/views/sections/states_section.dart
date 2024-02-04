@@ -197,7 +197,7 @@ class _RefTileTitle extends WatcherStatelessWidget {
       children: [
         Flexible(
           child: Text(
-            store.watch(refNodeTitle(_refCurrentNode)),
+            store.watch(computedNodeTitle(_refCurrentNode)),
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12),
           ),

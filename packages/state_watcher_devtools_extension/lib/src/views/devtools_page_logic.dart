@@ -24,7 +24,7 @@ final refSelectedNodeDependencyIds = Computed((watch) {
   selectedNode.addDependencyIdsTo(result, allNodes);
   return result;
 });
-final refNodeTitle = Computed.withParameter(
+final computedNodeTitle = Computed.withParameter(
   (watch, Provided<Node> nodeRef) {
     final node = watch(nodeRef);
 
