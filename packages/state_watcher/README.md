@@ -1,5 +1,4 @@
-[![Build][github_action_build_badge]][github_action_build]
-[![Test][github_action_test_badge]][github_action_test]
+[![Build & Tests][github_action_build_badge]][github_action_build]
 [![Codecov][codecov_badge]][codecov]
 [![Pub][pub_badge]][pub]
 

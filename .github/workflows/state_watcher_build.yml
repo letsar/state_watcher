@@ -16,6 +16,9 @@ jobs:
           - stable
           - beta
           - master
+        include:
+          - channel: stable
+            test: true
 
     steps:
       - uses: actions/checkout@v3
@@ -35,3 +38,19 @@ jobs:
       - name: Analyze
         run: flutter analyze
         working-directory: ${{ matrix.package }}
+
+      - if: ${{ matrix.test }}
+        name: Check format
+        run: dart format --set-exit-if-changed .
+        working-directory: ${{ matrix.package }}
+
+      - if: ${{ matrix.test }}
+        name: Run tests
+        run: flutter test --coverage
+        working-directory: ${{ matrix.package }}
+
+      - if: ${{ matrix.test }}
+        name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
