@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  WD: packages/state_watcher
+  WORKSPACE: packages/state_watcher
 
 jobs:
   sanity_check:
@@ -30,25 +30,25 @@ jobs:
 
       - name: Removing example folder
         run: rm -rf example
-        working-directory: ${{ WD }}
+        working-directory: ${{ end.WORKSPACE }}
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ${{ WD }}
+        working-directory: ${{ end.WORKSPACE }}
 
       - name: Analyze
         run: flutter analyze
-        working-directory: ${{ WD }}
+        working-directory: ${{ end.WORKSPACE }}
 
       - if: ${{ matrix.test }}
         name: Check format
         run: dart format --set-exit-if-changed .
-        working-directory: ${{ WD }}
+        working-directory: ${{ end.WORKSPACE }}
 
       - if: ${{ matrix.test }}
         name: Run tests
         run: flutter test --coverage
-        working-directory: ${{ WD }}
+        working-directory: ${{ end.WORKSPACE }}
 
       - if: ${{ matrix.test }}
         name: Upload coverage reports to Codecov
