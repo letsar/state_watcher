@@ -30,25 +30,25 @@ jobs:
 
       - name: Removing example folder
         run: rm -rf example
-        working-directory: ${{ end.WORKSPACE }}
+        working-directory: ${{ env.WORKSPACE }}
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ${{ end.WORKSPACE }}
+        working-directory: ${{ env.WORKSPACE }}
 
       - name: Analyze
         run: flutter analyze
-        working-directory: ${{ end.WORKSPACE }}
+        working-directory: ${{ env.WORKSPACE }}
 
       - if: ${{ matrix.test }}
         name: Check format
         run: dart format --set-exit-if-changed .
-        working-directory: ${{ end.WORKSPACE }}
+        working-directory: ${{ env.WORKSPACE }}
 
       - if: ${{ matrix.test }}
         name: Run tests
         run: flutter test --coverage
-        working-directory: ${{ end.WORKSPACE }}
+        working-directory: ${{ env.WORKSPACE }}
 
       - if: ${{ matrix.test }}
         name: Upload coverage reports to Codecov
