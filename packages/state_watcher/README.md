@@ -8,18 +8,20 @@
 
 ---
 
-A simple, yet powerful reactive state management solution for Flutter applications
+A simple, yet powerful reactive state management solution for Flutter applications.
 
 For a more detailed documentation hit the official [site](https://letsar.github.io/state_watcher/).
 
 # Guide
 
-We can see an application state as the agglomeration of a multitude of tiny states. At the core of this vision, we have independent states we can read and write. For example in the counter app, the whole application has only one indepedent state: *the counter*.
+The global state of an application can be seen as a set of independents sources of truth and derived states, computed from them and other ones.
+For example in the counter app, the whole application has only one single source of truth: *the counter*.
 
 In **state_watcher**, such a state is declared by a `Provided`:
 
 ```dart
-// We declare here a state which has an initial value of 0, and it can be referenced through `refCounter`.
+// We declare here a state which has an initial value of 0
+// and it can be referenced through `refCounter`.
 final refCounter = Provided((_) => 0);
 ```
 
@@ -31,7 +33,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The root store can be declared just above the MaterialApp, so that it can be accessed from anywhere in the application.
+    // The root store can be declared just above the MaterialApp
+    // so that it can be accessed from anywhere in the application.
     return const StateStore(
       child: MaterialApp(
         home: MyHomePage(title: 'Flutter Demo Home Page'),
