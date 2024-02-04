@@ -16,12 +16,12 @@ Let's say all their states are stored in the store number 0.
 
 In the illustration below, representing these relationships, the states are called with the name of their Ref followed by the id of the store (0 here). The states of the `Provided` are in purple and the states of the `Computed` are in yellow.
 
-![Store Example 1](../../../assets/store_example_1.png).
+![Store Example 1](../../../assets/store_example_1.png)
 
 In **state_watcher** each store can have a parent store. This is useful if we want to override the value of a `Provided` by something else.
 For example, let's say we have a store 1 depending on the store 0 and in this store we override the `Provided` **a**. In this case we can representing the relations by the image below:
 
-![Store Example 2](../../../assets/store_example_2.png).
+![Store Example 2](../../../assets/store_example_2.png)
 
 As you can see, now we have another state for the `Provided` **a** in the store number 1 (a1), and all the `Computed` have also another state in the store 1. This is because otherwise the location of the state of a `Computed` could change over time and it would be too complicated to handle it.
 But since Refs are lazily created, **f1** and **g1** would not be created before we want to evaluate them.
