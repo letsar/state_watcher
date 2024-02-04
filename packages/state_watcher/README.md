@@ -114,7 +114,7 @@ For a more detailed documentation hit the official site: // TODO.
 
 **state_watcher** has a DevTools extension allowing you to easily debug the state changes in your app and see which is the state responsible for a widget to rebuild.
 
-[![DevTools extension][devtools_extension]]
+![DevTools extension][devtools_extension]
 
 
 <!-- Links -->
