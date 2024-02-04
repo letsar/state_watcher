@@ -5,4 +5,4 @@ sidebar:
   order: 2
 ---
 
-Coming soon.
+If you use VSCode, there is an extension called [flutter-state_watcher-snippets](https://marketplace.visualstudio.com/items?itemName=romain-rastel.flutter-state-watcher-snippets) with useful snippets for making you even more productive.
