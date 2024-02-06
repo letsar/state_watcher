@@ -135,8 +135,21 @@ void main() {
       });
 
       group('withParameter', () {
-        test('should not create another Computed if same parameter', () {
-          final store = StoreNode();
+        test('with same parameter should have same id', () {
+          final a = Provided((_) => 4);
+          final b = Computed.withParameter((watch, int x) {
+            return watch(a) * x;
+          });
+
+          final c1 = b(2);
+          final c2 = b(3);
+          final c3 = b(2);
+
+          expect(c1.id == c2.id, isFalse);
+          expect(c1.id == c3.id, isTrue);
+        });
+
+        test('with same parameter should have same id', () {
           final a = Provided((_) => 4);
           final b = Computed.withParameter((watch, int x) {
             return watch(a) * x;
