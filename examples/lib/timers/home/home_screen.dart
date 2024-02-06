@@ -84,12 +84,12 @@ class ExpirableTile extends WatcherStatelessWidget {
   @override
   Widget build(BuildContext context, BuildStore store) {
     final expirationDate = store.watch(_refCurrentExpirationDate);
-    final expiration = store.watch(
+    final durationLeft = store.watch(
       computedDurationLeftByExpirationDate(expirationDate),
     );
 
     return ListTile(
-      title: Text(expiration),
+      title: Text(durationLeft),
       trailing: IconButton(
         icon: const Icon(Icons.delete),
         onPressed: () {
