@@ -2,6 +2,7 @@ import 'package:examples/conditional_watch/main.dart';
 import 'package:examples/counter/main.dart';
 import 'package:examples/pub/main.dart';
 import 'package:examples/shopper/main.dart';
+import 'package:examples/timers/main.dart';
 import 'package:examples/todos/main.dart';
 import 'package:examples/user_devices/main.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class _Apps extends StatelessWidget {
           _AppTile(title: 'Shopper', builder: _shopperApp),
           _AppTile(title: 'Todos', builder: _todosApp),
           _AppTile(title: 'UserDevices', builder: _userDevicesApp),
+          _AppTile(title: 'Timers', builder: _timersApp),
         ],
       ),
     );
@@ -89,4 +91,8 @@ Widget _todosApp(BuildContext context) {
 
 Widget _userDevicesApp(BuildContext context) {
   return const UserDevicesApp();
+}
+
+Widget _timersApp(BuildContext context) {
+  return const TimersApp();
 }
