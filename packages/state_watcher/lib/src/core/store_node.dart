@@ -394,7 +394,13 @@ class ProvidedNode<T> extends Node<T> {
   }
 
   T _createValue(Provided<T> ref) {
-    final value = ref._create(store.read);
+    X read<X>(Ref<X> ref) {
+      final node = store._fetchOrCreateNodeFromTree(ref);
+      addDependency(node);
+      return node.value;
+    }
+
+    final value = ref._create(read);
     if (value is StateLogic) {
       value._init(store);
     }

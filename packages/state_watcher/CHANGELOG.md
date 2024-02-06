@@ -1,3 +1,7 @@
+## [0.0.6] 
+### Changed
+- When reading another ref in the initialization of a Provided, a dependency is made between the two.
+
 ## [0.0.5] 
 ### Fixed
 - DevTools extension not working.

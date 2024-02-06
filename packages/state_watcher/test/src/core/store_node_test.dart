@@ -340,5 +340,18 @@ void main() {
         expect(() => store1.dispose(), throwsA(isA<StoreHasDependentsError>()));
       });
     });
+
+    group('[AutoDispose]', () {
+      test('should dispose a Provided which was read by a deleted node', () {
+        final store = StoreNode();
+        final a = Provided((_) => 4, autoDispose: true);
+        final b = Provided((read) {
+          read(a);
+          return 5;
+        });
+        store.delete(b);
+        expect(store.hasStateFor(a), false);
+      });
+    });
   });
 }

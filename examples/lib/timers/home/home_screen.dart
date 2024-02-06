@@ -4,7 +4,10 @@ import 'package:examples/timers/models/expirable.dart';
 import 'package:flutter/material.dart';
 import 'package:state_watcher/state_watcher.dart';
 
+/// Providing a different [Expirable] for each [ExpirableTile].
 final _refCurrentExpirable = Provided<Expirable>.undefined();
+
+/// Computing the expiration date of the current [Expirable].
 final _refCurrentExpirationDate = Computed((watch) {
   return watch(_refCurrentExpirable).expirationDate;
 });
@@ -17,7 +20,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: SafeArea(child: ExpirableListView()),
+      body: SafeArea(
+        child: ExpirableListView(),
+      ),
       floatingActionButton: _AddExpirableButton(),
     );
   }
@@ -36,8 +41,13 @@ class ExpirableListView extends WatcherStatelessWidget {
       itemCount: expirables.length,
       itemBuilder: (context, index) {
         final expirable = expirables[index];
+
+        // We create another store to provide a different [Expirable] for each
+        // [ExpirableTile].
         return StateStore(
           overrides: {
+            // When reading _refCurrentExpirable in the subtree, we will get
+            // [expirable].
             _refCurrentExpirable.overrideWithValue(expirable),
           },
           child: ExpirableTile(
@@ -54,10 +64,11 @@ class ExpirableTile extends WatcherStatelessWidget {
     super.key,
   });
 
+  /// Computing the duration left by the expiration date.
   static final computedDurationLeftByExpirationDate = Computed.withParameter(
     (watch, DateTime parameter) {
-      final timerLogic = watch(refTimerLogic);
-      final currentDate = watch(timerLogic.refCurrentDate);
+      // Getting the current date, automatically updated every second.
+      final currentDate = watch(refCurrentDate);
       final duration = parameter.difference(currentDate);
       if (duration.inSeconds < 1) {
         return 'Expired';
