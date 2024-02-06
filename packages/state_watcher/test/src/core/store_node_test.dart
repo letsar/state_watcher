@@ -133,6 +133,23 @@ void main() {
           expect(store2.read(a), equals(5));
         });
       });
+
+      group('withParameter', () {
+        test('should not create another Computed if same parameter', () {
+          final store = StoreNode();
+          final a = Provided((_) => 4);
+          final b = Computed.withParameter((watch, int x) {
+            return watch(a) * x;
+          });
+
+          final c1 = b(2);
+          final c2 = b(3);
+          final c3 = b(2);
+
+          expect(c1.id == c2.id, isFalse);
+          expect(c1.id == c3.id, isTrue);
+        });
+      });
     });
 
     group('[Observed]', () {
@@ -152,157 +169,154 @@ void main() {
       });
     });
 
-    group(
-      '[Delete]',
-      () {
-        test('Should remove a node from its dependencies', () {
-          final logs1 = <int>[];
-          final v1 = Provided((_) => 4);
-          final c1 = Computed((watch) {
-            final result = watch(v1) * 2;
-            logs1.add(result);
+    group('[Delete]', () {
+      test('Should remove a node from its dependencies', () {
+        final logs1 = <int>[];
+        final v1 = Provided((_) => 4);
+        final c1 = Computed((watch) {
+          final result = watch(v1) * 2;
+          logs1.add(result);
+          return result;
+        });
+
+        final store = StoreNode();
+
+        // creates v1 -> c1.
+        store.read(c1);
+        expect(logs1, [8]);
+
+        // updates v1, which should update c1.
+        store.update(v1, (x) => x + 1);
+        expect(logs1, [8, 10]);
+
+        // c1 should no longer exists.
+        store.delete(c1);
+
+        // since c1 no longer exists, it should not be updated.
+        store.update(v1, (x) => x + 1);
+        expect(logs1, [8, 10]);
+      });
+
+      test('Should remove a chain of nodes', () {
+        const v = 4;
+        final v1 = Provided((_) => v);
+
+        final allLogs = <List<int>>[];
+        final cx = <Computed<int>>[];
+
+        Ref<int> dependency = v1;
+
+        const max = 10;
+
+        for (int i = 0; i < max; i++) {
+          final logs = <int>[];
+          allLogs.add(logs);
+          final dep = dependency;
+          final c = Computed((watch) {
+            final result = watch(dep) * 2;
+            logs.add(result);
             return result;
           });
+          cx.add(c);
+          dependency = c;
+        }
 
-          final store = StoreNode();
+        final store = StoreNode();
+        // Creates v1 -> c0 -> ... -> c9.
+        store.read(cx.last);
 
-          // creates v1 -> c1.
-          store.read(c1);
-          expect(logs1, [8]);
+        for (int i = 0; i < max; i++) {
+          final mult = math.pow(2, i + 1);
+          expect(allLogs[i], [v * mult]);
+        }
 
-          // updates v1, which should update c1.
-          store.update(v1, (x) => x + 1);
-          expect(logs1, [8, 10]);
+        // updates v1, which should update cO through c9.
+        store.update(v1, (x) => x + 1);
+        for (int i = 0; i < max; i++) {
+          final mult = math.pow(2, i + 1);
+          expect(allLogs[i], [v * mult, (v + 1) * mult]);
+        }
 
-          // c1 should no longer exists.
-          store.delete(c1);
+        // c9 should no longer exists and all the chain should also be deleted.
+        store.delete(cx.last);
 
-          // since c1 no longer exists, it should not be updated.
-          store.update(v1, (x) => x + 1);
-          expect(logs1, [8, 10]);
-        });
+        // since all the chain is deleted, they should not be updated.
+        store.update(v1, (x) => x + 1);
+        for (int i = 0; i < max; i++) {
+          final mult = math.pow(2, i + 1);
+          expect(allLogs[i], [v * mult, (v + 1) * mult]);
+        }
+      });
 
-        test('Should remove a chain of nodes', () {
-          const v = 4;
-          final v1 = Provided((_) => v);
+      test('Should remove a chain of nodes across stores', () {
+        const v = 4;
+        final v1 = Provided((_) => v);
 
-          final allLogs = <List<int>>[];
-          final cx = <Computed<int>>[];
+        final allLogs = <List<int>>[];
+        final cx = <Computed<int>>[];
 
-          Ref<int> dependency = v1;
+        Ref<int> dependency = v1;
 
-          const max = 10;
+        const max = 3;
 
-          for (int i = 0; i < max; i++) {
-            final logs = <int>[];
-            allLogs.add(logs);
-            final dep = dependency;
-            final c = Computed((watch) {
-              final result = watch(dep) * 2;
-              logs.add(result);
-              return result;
-            });
-            cx.add(c);
-            dependency = c;
-          }
+        for (int i = 0; i < max; i++) {
+          final logs = <int>[];
+          allLogs.add(logs);
+          final dep = dependency;
+          final c = Computed((watch) {
+            final result = watch(dep) * 2;
+            logs.add(result);
+            return result;
+          });
+          cx.add(c);
+          dependency = c;
+        }
 
-          final store = StoreNode();
-          // Creates v1 -> c0 -> ... -> c9.
-          store.read(cx.last);
+        final c1 = cx[0];
+        final c2 = cx[1];
+        final c3 = cx[2];
 
-          for (int i = 0; i < max; i++) {
-            final mult = math.pow(2, i + 1);
-            expect(allLogs[i], [v * mult]);
-          }
+        final store1 = StoreNode();
+        final store2 = StoreNode(parent: store1);
+        final store3 = StoreNode(parent: store2);
+        final store4 = StoreNode(parent: store3);
 
-          // updates v1, which should update cO through c9.
-          store.update(v1, (x) => x + 1);
-          for (int i = 0; i < max; i++) {
-            final mult = math.pow(2, i + 1);
-            expect(allLogs[i], [v * mult, (v + 1) * mult]);
-          }
+        store4.read(v1);
+        store4.read(c1);
+        store4.read(c2);
+        store4.read(c3);
 
-          // c9 should no longer exists and all the chain should also be deleted.
-          store.delete(cx.last);
+        for (int i = 0; i < max; i++) {
+          final mult = math.pow(2, i + 1);
+          expect(allLogs[i], [v * mult]);
+        }
 
-          // since all the chain is deleted, they should not be updated.
-          store.update(v1, (x) => x + 1);
-          for (int i = 0; i < max; i++) {
-            final mult = math.pow(2, i + 1);
-            expect(allLogs[i], [v * mult, (v + 1) * mult]);
-          }
-        });
+        // updates v1, which should update c1 through c3.
+        store1.update(v1, (x) => x + 1);
+        for (int i = 0; i < max; i++) {
+          final mult = math.pow(2, i + 1);
+          expect(allLogs[i], [v * mult, (v + 1) * mult]);
+        }
 
-        test('Should remove a chain of nodes across stores', () {
-          const v = 4;
-          final v1 = Provided((_) => v);
+        // c3 should no longer exists and all the chain should also be deleted.
+        store4.delete(c3);
 
-          final allLogs = <List<int>>[];
-          final cx = <Computed<int>>[];
+        // since all the chain is deleted, they should not be updated.
+        store1.update(v1, (x) => x + 1);
+        for (int i = 0; i < max; i++) {
+          final mult = math.pow(2, i + 1);
+          expect(allLogs[i], [v * mult, (v + 1) * mult]);
+        }
+      });
 
-          Ref<int> dependency = v1;
-
-          const max = 3;
-
-          for (int i = 0; i < max; i++) {
-            final logs = <int>[];
-            allLogs.add(logs);
-            final dep = dependency;
-            final c = Computed((watch) {
-              final result = watch(dep) * 2;
-              logs.add(result);
-              return result;
-            });
-            cx.add(c);
-            dependency = c;
-          }
-
-          final c1 = cx[0];
-          final c2 = cx[1];
-          final c3 = cx[2];
-
-          final store1 = StoreNode();
-          final store2 = StoreNode(parent: store1);
-          final store3 = StoreNode(parent: store2);
-          final store4 = StoreNode(parent: store3);
-
-          store4.read(v1);
-          store4.read(c1);
-          store4.read(c2);
-          store4.read(c3);
-
-          for (int i = 0; i < max; i++) {
-            final mult = math.pow(2, i + 1);
-            expect(allLogs[i], [v * mult]);
-          }
-
-          // updates v1, which should update c1 through c3.
-          store1.update(v1, (x) => x + 1);
-          for (int i = 0; i < max; i++) {
-            final mult = math.pow(2, i + 1);
-            expect(allLogs[i], [v * mult, (v + 1) * mult]);
-          }
-
-          // c3 should no longer exists and all the chain should also be deleted.
-          store4.delete(c3);
-
-          // since all the chain is deleted, they should not be updated.
-          store1.update(v1, (x) => x + 1);
-          for (int i = 0; i < max; i++) {
-            final mult = math.pow(2, i + 1);
-            expect(allLogs[i], [v * mult, (v + 1) * mult]);
-          }
-        });
-
-        test('Should not be able to delete a node that has dependents', () {
-          final v = Provided((_) => 3);
-          final c = Computed((watch) => watch(v));
-          final store = StoreNode();
-          store.read(c);
-          expect(() => store.delete(v), throwsA(isA<NodeHasDependentsError>()));
-        });
-      },
-    );
+      test('Should not be able to delete a node that has dependents', () {
+        final v = Provided((_) => 3);
+        final c = Computed((watch) => watch(v));
+        final store = StoreNode();
+        store.read(c);
+        expect(() => store.delete(v), throwsA(isA<NodeHasDependentsError>()));
+      });
+    });
 
     group('[Dispose]', () {
       test('Should not be able to dispose a store with dependents', () {
