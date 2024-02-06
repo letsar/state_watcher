@@ -7,10 +7,23 @@ import 'package:state_watcher/state_watcher.dart';
 /// Providing a different [Expirable] for each [ExpirableTile].
 final _refCurrentExpirable = Provided<Expirable>.undefined();
 
-/// Computing the expiration date of the current [Expirable].
-final _refCurrentExpirationDate = Computed((watch) {
-  return watch(_refCurrentExpirable).expirationDate;
-});
+/// Computing the duration left by the expiration date.
+final _refCurrentDurationLeft = Computed((watch) {
+  // Getting the current date, automatically updated every second.
+  final currentDate = watch(refCurrentDate);
+
+  // Getting the expiration date from the current expirable.
+  final expirationDate = watch(_refCurrentExpirable).expirationDate;
+  final duration = expirationDate.difference(currentDate);
+  if (duration.inSeconds < 1) {
+    return 'Expired';
+  }
+  final seconds = duration.inSeconds;
+  return switch (seconds) {
+    >= 60 => '${seconds ~/ 60}mn',
+    _ => '${seconds}s',
+  };
+}, debugName: 'currentDurationLeft');
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -64,29 +77,9 @@ class ExpirableTile extends WatcherStatelessWidget {
     super.key,
   });
 
-  /// Computing the duration left by the expiration date.
-  static final computedDurationLeftByExpirationDate = Computed.withParameter(
-    (watch, DateTime parameter) {
-      // Getting the current date, automatically updated every second.
-      final currentDate = watch(refCurrentDate);
-      final duration = parameter.difference(currentDate);
-      if (duration.inSeconds < 1) {
-        return 'Expired';
-      }
-      final seconds = duration.inSeconds;
-      return switch (seconds) {
-        >= 60 => '${seconds ~/ 60}mn',
-        _ => '${seconds}s',
-      };
-    },
-  );
-
   @override
   Widget build(BuildContext context, BuildStore store) {
-    final expirationDate = store.watch(_refCurrentExpirationDate);
-    final durationLeft = store.watch(
-      computedDurationLeftByExpirationDate(expirationDate),
-    );
+    final durationLeft = store.watch(_refCurrentDurationLeft);
 
     return ListTile(
       title: Text(durationLeft),
