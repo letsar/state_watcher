@@ -8,7 +8,7 @@ import 'package:state_watcher/state_watcher.dart';
 final _refCurrentExpirable = Provided<Expirable>.undefined();
 
 /// Computing the duration left by the expiration date.
-final _refCurrentDurationLeft = Computed.withParameter(
+final _computeDurationLeftByExpirationDuration = Computed.withParameter(
   (watch, DateTime expirationDate) {
     // Getting the current date, automatically updated every second.
     final currentDate = watch(refCurrentDate);
@@ -86,7 +86,7 @@ class ExpirableTile extends WatcherStatelessWidget {
   Widget build(BuildContext context, BuildStore store) {
     final expirable = store.watch(_refCurrentExpirable);
     final durationLeft = store.watch(
-      _refCurrentDurationLeft(expirable.expirationDate),
+      _computeDurationLeftByExpirationDuration(expirable.expirationDate),
     );
 
     return ListTile(

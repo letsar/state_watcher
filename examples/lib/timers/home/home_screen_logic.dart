@@ -11,9 +11,8 @@ class HomeScreenLogic with StateLogic {
   int _currentId = 0;
 
   void addExpirable() {
-    final expirationDate = DateTime.now().add(
-      Duration(seconds: _random.nextInt(45) + 30),
-    );
+    final now = DateTime.now().copyWith(millisecond: 0, microsecond: 0);
+    final expirationDate = now.add(Duration(seconds: _random.nextInt(4) + 30));
     final id = _currentId++;
     final expirable = Expirable(id, expirationDate);
     update(refExpirables, (x) => [...x, expirable]);
