@@ -12,13 +12,14 @@ final _refCurrentDurationLeft = Computed.withParameter(
   (watch, DateTime expirationDate) {
     // Getting the current date, automatically updated every second.
     final currentDate = watch(refCurrentDate);
-
-    // Getting the expiration date from the current expirable.
     final duration = expirationDate.difference(currentDate);
+
     if (duration.inSeconds < 1) {
+      // Calling cancel to stop watching refCurrentDate once expired.
       watch.cancel(refCurrentDate);
       return 'Expired';
     }
+
     final seconds = duration.inSeconds;
     return switch (seconds) {
       >= 60 => '${seconds ~/ 60}mn',
