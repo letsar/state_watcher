@@ -52,6 +52,18 @@ void main() {
         final va = store.read(a);
         expect(va, 3);
       });
+
+      test('should add a dependency with read but not watch it', () {
+        final a = Provided((_) => 4, autoDispose: true);
+        final b = Provided((read) => read(a) * 2);
+        final store = StoreNode();
+        expect(store.read(b), 8);
+        store.write(a, 5);
+        expect(store.read(b), 8);
+        store.delete(b);
+        expect(store.hasStateFor(a), false);
+        expect(store.hasStateFor(b), false);
+      });
     });
 
     group('[Computed]', () {
