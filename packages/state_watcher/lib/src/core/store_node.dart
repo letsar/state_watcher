@@ -155,41 +155,34 @@ class StoreNode extends Store {
     return node;
   }
 
-  Node<T> _fetchOrCreateNode<T>(Ref<T> ref) {
-    final node = _nodes.putIfAbsent(ref.id, () {
-      return _createNode<T>(ref);
-    });
-    return node as Node<T>;
+  Node<T>? _fetchNode<T>(Ref<T> ref, {bool create = true}) {
+    final node = create
+        ? _nodes.putIfAbsent(ref.id, () {
+            return _createNode<T>(ref);
+          })
+        : _nodes[ref.id];
+
+    return node as Node<T>?;
   }
 
   Node<T> _fetchOrCreateNodeFromTree<T>(Ref<T> ref) {
+    return _fetchNodeFromTree<T>(ref, create: true)!;
+  }
+
+  Node<T>? _fetchNodeFromTree<T>(Ref<T> ref, {required bool create}) {
     // In case of an override, we always fetch the value from the store where
     // the override is defined.
     final override = _overrides[ref.id] as Ref<T>?;
     if (override != null) {
-      return _fetchOrCreateNode(override);
+      return _fetchNode(override, create: create);
     }
 
-    final node = switch (ref) {
-      // For a Provided the rule is to fetch the value from the
-      // root store.
-      Provided<T>() => () {
-          final parent = this.parent;
-          if (parent == null) {
-            // We can get the value from this store.
-            return _fetchOrCreateNode(ref);
-          }
+    final parent = this.parent;
+    if (!ref.global || parent == null) {
+      return _fetchNode(ref, create: create);
+    }
 
-          // We need to fetch it from its parent.
-          return parent._fetchOrCreateNodeFromTree(ref);
-        }(),
-
-      // For a Computed, we need to fetch the value from the nearest store,
-      // because in case of dependency overrides, we need to get those values
-      // from the nearest store.
-      Computed<T>() || Observed() => _fetchOrCreateNode(ref),
-    };
-    return node;
+    return parent._fetchNodeFromTree(ref, create: create);
   }
 
   void _stateCreated<T>(Node<T> node) {
@@ -428,7 +421,7 @@ class ProvidedNode<T> extends Node<T> {
 }
 
 @internal
-class ComputedNode<T> extends Node<T> {
+class ComputedNode<T> extends Node<T> implements Watcher {
   ComputedNode(this.ref, super.store);
 
   @override
@@ -441,19 +434,28 @@ class ComputedNode<T> extends Node<T> {
   }
 
   @override
+  X call<X>(Ref<X> ref) {
+    final node = store._fetchOrCreateNodeFromTree(ref);
+    addDependency(node);
+    return node.value;
+  }
+
+  @override
+  void cancel<X>(Ref<X> ref) {
+    final node = store._fetchNodeFromTree(ref, create: false);
+    if (node != null) {
+      removeDependency(node);
+    }
+  }
+
+  @override
   void update() {
     value = compute();
   }
 
   T compute() {
-    X watch<X>(Ref<X> ref) {
-      final node = store._fetchOrCreateNodeFromTree(ref);
-      addDependency(node);
-      return node.value;
-    }
-
     startTrackingDependencies();
-    final value = ref._compute(watch);
+    final value = ref._compute(this);
     endTrackingDependencies();
 
     return value;

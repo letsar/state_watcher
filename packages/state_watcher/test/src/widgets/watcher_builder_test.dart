@@ -68,7 +68,6 @@ void main() {
         await tester.pumpWidget(tree);
         expect(removed, isFalse);
       });
-
       testWidgets('should remove computed if not longer watched',
           (tester) async {
         final a = Provided((_) => 0);
@@ -243,7 +242,7 @@ void main() {
       });
     });
 
-    group('should not be rebuild when', () {
+    group('should not be rebuilt when', () {
       testWidgets('a ref no longer watched is updated', (tester) async {
         final a = Provided((_) => 0);
         final b = Provided((_) => 0);
@@ -297,6 +296,43 @@ void main() {
         buildStore.write(c, 2);
         await tester.pump();
         expect(buildCount, 4);
+      });
+
+      testWidgets('the sole dependency is unwatched', (tester) async {
+        final a = Provided((_) => 0);
+        final b = Computed((watch) {
+          final result = watch(a);
+          if (result >= 2) {
+            watch.cancel(a);
+          }
+          return result;
+        });
+        int buildCount = 0;
+        late BuildStore buildStore;
+        final tree = StateStore(
+          child: WatcherBuilder(
+            builder: (context, store) {
+              buildCount++;
+              buildStore = store;
+              store.watch(b);
+              return const SizedBox();
+            },
+          ),
+        );
+        await tester.pumpWidget(tree);
+        expect(buildCount, 1);
+        buildStore.write(a, 1);
+        await tester.pump();
+        expect(buildCount, 2);
+        expect(buildStore.read(b), 1);
+        buildStore.write(a, 2);
+        await tester.pump();
+        expect(buildCount, 3);
+        expect(buildStore.read(b), 2);
+        buildStore.write(a, 3);
+        await tester.pump();
+        expect(buildCount, 3);
+        expect(buildStore.read(b), 2);
       });
     });
     group('read', () {

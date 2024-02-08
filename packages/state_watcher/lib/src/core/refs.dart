@@ -15,8 +15,17 @@ part 'store_node.dart';
 /// Signature for determining whether [a] and [b] are different.
 typedef AreDifferent<T> = bool Function(T a, T b);
 
-/// Signature for getting the value of a [Ref].
+/// Signature for reading the value of a [Ref].
 typedef Reader = T Function<T>(Ref<T> ref);
+
+/// Object allowing to watch and unwatch a [Ref].
+abstract class Watcher {
+  /// Watches the value of [ref].
+  T call<T>(Ref<T> ref);
+
+  /// Unwatches the value of [ref].
+  void cancel<T>(Ref<T> ref);
+}
 
 /// Contains metadada about a [Ref].
 class Metadata {
@@ -54,6 +63,7 @@ sealed class Ref<T> {
     required this.metadata,
     bool? autoDispose,
     AreDifferent<T>? updateShouldNotify,
+    required this.global,
   })  : autoDispose = autoDispose ?? false,
         updateShouldNotify = updateShouldNotify ?? _defaultUpdateShouldNotify;
 
@@ -71,6 +81,10 @@ sealed class Ref<T> {
 
   /// The function used to determine whether an update should refresh dependents.
   final AreDifferent<T> updateShouldNotify;
+
+  /// Indicates whether this [Ref] should be stored in the root store or in the
+  /// nearest one.
+  final bool global;
 
   /// We need to create the node from the ref because we want to keep the type
   /// [T]. Otherwise we would get the type passed to the method used to create
@@ -135,7 +149,7 @@ class Provided<T> extends Ref<T> {
     super.autoDispose,
     super.updateShouldNotify,
   })  : _create = create,
-        super(id: metadata);
+        super(id: metadata, global: true);
 
   /// Creates a new [Provided] with the given value, used to override the
   /// value of this [Provided] in a store.
@@ -173,6 +187,7 @@ class ComputedWithParameterBuilder<T, P extends Object> {
     this._compute,
     String? debugName,
     this._updateShouldNotify,
+    this._global,
   ) : _metadata = Metadata(
           refType: 'Computed',
           valueType: '$T',
@@ -181,7 +196,8 @@ class ComputedWithParameterBuilder<T, P extends Object> {
 
   final Metadata _metadata;
   final AreDifferent<T>? _updateShouldNotify;
-  final T Function(Reader watch, P parameter) _compute;
+  final T Function(Watcher watch, P parameter) _compute;
+  final bool _global;
 
   /// Creates a new [Computed] with the given [parameter].
   Computed<T> call(P parameter) {
@@ -191,6 +207,7 @@ class ComputedWithParameterBuilder<T, P extends Object> {
       metadata: _metadata,
       autoDispose: true,
       updateShouldNotify: _updateShouldNotify,
+      global: _global,
     );
   }
 }
@@ -231,22 +248,25 @@ class Computed<T> extends Ref<T> {
   /// changes and the resulting value is used to update the state associated
   /// with this [Computed].
   Computed(
-    T Function(Reader watch) compute, {
+    T Function(Watcher watch) compute, {
     String? debugName,
     bool autoDispose = true,
     AreDifferent<T>? updateShouldNotify,
+    bool global = false,
   }) : this._(
           compute,
           debugName: debugName,
           autoDispose: autoDispose,
           updateShouldNotify: updateShouldNotify,
+          global: global,
         );
 
   Computed._(
-    T Function(Reader watch) compute, {
+    T Function(Watcher watch) compute, {
     String? debugName,
     bool autoDispose = true,
     AreDifferent<T>? updateShouldNotify,
+    bool global = false,
   }) : this._fromMetadata(
           compute,
           metadata: Metadata(
@@ -256,25 +276,28 @@ class Computed<T> extends Ref<T> {
           ),
           autoDispose: autoDispose,
           updateShouldNotify: updateShouldNotify,
+          global: global,
         );
 
   Computed._fromMetadata(
-    T Function(Reader watch) compute, {
+    T Function(Watcher watch) compute, {
     required super.metadata,
     required super.autoDispose,
     required super.updateShouldNotify,
+    required super.global,
   })  : _compute = compute,
         super(id: metadata);
 
   Computed._fromIdAndMetadata(
-    T Function(Reader watch) compute, {
+    T Function(Watcher watch) compute, {
     required super.id,
     required super.metadata,
     required super.autoDispose,
     required super.updateShouldNotify,
+    required super.global,
   }) : _compute = compute;
 
-  final T Function(Reader watch) _compute;
+  final T Function(Watcher watch) _compute;
 
   @override
   Node<T> _createNode(StoreNode store) {
@@ -284,14 +307,16 @@ class Computed<T> extends Ref<T> {
   /// Creates an object that can be used to create a [Computed] with a
   /// parameter.
   static ComputedWithParameterBuilder<T, P> withParameter<T, P extends Object>(
-    T Function(Reader watch, P parameter) compute, {
+    T Function(Watcher watch, P parameter) compute, {
     String? debugName,
     AreDifferent<T>? updateShouldNotify,
+    bool global = false,
   }) {
     return ComputedWithParameterBuilder<T, P>._(
       compute,
       debugName,
       updateShouldNotify,
+      global,
     );
   }
 }
@@ -319,7 +344,7 @@ class Observed extends Ref<void> {
     required this.location,
     required super.metadata,
     required super.updateShouldNotify,
-  }) : super(id: metadata);
+  }) : super(id: metadata, global: false);
 
   final VoidCallback onDependencyChanged;
   final ObservedLocation? location;
