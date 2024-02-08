@@ -111,7 +111,7 @@ void main() {
       });
 
       group('[Creation]', () {
-        test('should always be created in the lowest store', () {
+        test('should be created in the lowest store if not global', () {
           final a = Provided((_) => 4);
           final store1 = StoreNode();
           final store2 = StoreNode(
@@ -126,6 +126,28 @@ void main() {
           store1.write(a, 5);
           expect(store1.read(a), equals(5));
           expect(store2.read(c), equals(6));
+          expect(store2.read(a), equals(3));
+          store2.write(a, 5);
+          expect(store1.read(a), equals(5));
+          expect(store2.read(c), equals(10));
+          expect(store2.read(a), equals(5));
+        });
+
+        test('should be created in the root store if global', () {
+          final a = Provided((_) => 4);
+          final store1 = StoreNode();
+          final store2 = StoreNode(
+            parent: store1,
+            overrides: {a.overrideWithValue(3)},
+          );
+          final c = Computed((watch) => watch(a) * 2, global: true);
+
+          expect(store1.read(a), equals(4));
+          expect(store2.read(c), equals(8));
+          expect(store2.read(a), equals(3));
+          store1.write(a, 5);
+          expect(store1.read(a), equals(5));
+          expect(store2.read(c), equals(10));
           expect(store2.read(a), equals(3));
           store2.write(a, 5);
           expect(store1.read(a), equals(5));
