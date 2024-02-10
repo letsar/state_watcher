@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:examples/timers/models/expirable.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-final refHomeScreenLogic = Provided((_) => HomeScreenLogic());
+final refHomeScreenLogic = Provided(
+  (_) => HomeScreenLogic(),
+  autoDispose: true,
+);
 final refExpirables = Provided((_) => <Expirable>[]);
 
 class HomeScreenLogic with StateLogic {

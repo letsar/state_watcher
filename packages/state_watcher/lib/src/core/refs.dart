@@ -16,19 +16,35 @@ part 'store_node.dart';
 /// Signature for determining whether [a] and [b] are different.
 typedef AreDifferent<T> = bool Function(T a, T b);
 
-/// Objects allowing to read the value of a [Ref].
-abstract class Reader {
-  /// Reads the value of [ref].
-  T call<T>(Ref<T> ref);
+/// Represents an argument of a [Ref].
+abstract class RefArg {
+  /// Call [cleanup] when the state is no longer used.
+  ///
+  /// Any subsequent call to [onDispose] will replace the previous [cleanup]
+  /// callback.
+  void onDispose(VoidCallback cleanup);
 }
 
-/// Object allowing to watch and unwatch a [Ref].
-abstract class Watcher {
+/// Objects allowing to read the value of other [Ref]s.
+abstract class Reader extends RefArg {
+  /// Reads the value of another [Ref].
+  X call<X>(Ref<X> ref);
+}
+
+/// Object allowing to watch and unwatch other [Ref]s.
+abstract class Watcher<T> extends RefArg {
   /// Watches the value of [ref].
-  T call<T>(Ref<T> ref);
+  X call<X>(Ref<X> ref);
 
   /// Unwatches the value of [ref].
-  void cancel<T>(Ref<T> ref);
+  void cancel<X>(Ref<X> ref);
+
+  /// Updates the state associated with the [Computed] using the [update]
+  /// callback.
+  ///
+  /// Must be called once the first value has been computed, otherwise it will
+  /// throw an error.
+  void it(Updater<T> update);
 }
 
 /// Contains metadada about a [Ref].
@@ -200,7 +216,7 @@ class ComputedWithParameterBuilder<T, P extends Object> {
 
   final Metadata _metadata;
   final AreDifferent<T>? _updateShouldNotify;
-  final T Function(Watcher watch, P parameter) _compute;
+  final T Function(Watcher<T> watch, P parameter) _compute;
   final bool _global;
 
   /// Creates a new [Computed] with the given [parameter].
@@ -252,7 +268,7 @@ class Computed<T> extends Ref<T> {
   /// changes and the resulting value is used to update the state associated
   /// with this [Computed].
   Computed(
-    T Function(Watcher watch) compute, {
+    T Function(Watcher<T> watch) compute, {
     String? debugName,
     bool autoDispose = true,
     AreDifferent<T>? updateShouldNotify,
@@ -266,7 +282,7 @@ class Computed<T> extends Ref<T> {
         );
 
   Computed._(
-    T Function(Watcher watch) compute, {
+    T Function(Watcher<T> watch) compute, {
     String? debugName,
     bool autoDispose = true,
     AreDifferent<T>? updateShouldNotify,
@@ -284,7 +300,7 @@ class Computed<T> extends Ref<T> {
         );
 
   Computed._fromMetadata(
-    T Function(Watcher watch) compute, {
+    T Function(Watcher<T> watch) compute, {
     required super.metadata,
     required super.autoDispose,
     required super.updateShouldNotify,
@@ -293,7 +309,7 @@ class Computed<T> extends Ref<T> {
         super(id: metadata);
 
   Computed._fromIdAndMetadata(
-    T Function(Watcher watch) compute, {
+    T Function(Watcher<T> watch) compute, {
     required super.id,
     required super.metadata,
     required super.autoDispose,
@@ -301,7 +317,7 @@ class Computed<T> extends Ref<T> {
     required super.global,
   }) : _compute = compute;
 
-  final T Function(Watcher watch) _compute;
+  final T Function(Watcher<T> watch) _compute;
 
   @override
   Node<T> _createNode(StoreNode store) {
@@ -311,7 +327,7 @@ class Computed<T> extends Ref<T> {
   /// Creates an object that can be used to create a [Computed] with a
   /// parameter.
   static ComputedWithParameterBuilder<T, P> withParameter<T, P extends Object>(
-    T Function(Watcher watch, P parameter) compute, {
+    T Function(Watcher<T> watch, P parameter) compute, {
     String? debugName,
     AreDifferent<T>? updateShouldNotify,
     bool global = false,

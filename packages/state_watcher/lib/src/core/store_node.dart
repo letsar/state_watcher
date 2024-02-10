@@ -114,10 +114,7 @@ class StoreNode {
     _nodes.remove(ref.id);
 
     // We also need to dispose any disposable value.
-    final value = node.value;
-    if (value is Disposable) {
-      value.dispose();
-    }
+    node.dispose();
 
     _stateDeleted(node);
   }
@@ -219,7 +216,8 @@ abstract class Node<T> extends BuildStore {
   Node(this.store)
       : _dependencies = {},
         _dependents = {},
-        _watchers = {};
+        _watchers = {},
+        _cleanupCallbacks = [];
 
   final StoreNode store;
 
@@ -255,6 +253,8 @@ abstract class Node<T> extends BuildStore {
 
   @override
   int get stateCount => store.stateCount;
+
+  final List<VoidCallback> _cleanupCallbacks;
 
   T get value => _value;
   late T _value;
@@ -389,10 +389,6 @@ abstract class Node<T> extends BuildStore {
 
   void rebuild();
 
-  void detach() {
-    store.delete(ref);
-  }
-
   void updateFromOverrides(
     covariant Ref<T> oldOverride,
     covariant Ref<T> newOverride,
@@ -413,6 +409,24 @@ abstract class Node<T> extends BuildStore {
       'dependencies': _dependencies.map((d) => d.debugId).toList(),
       'value': '$value',
     };
+  }
+
+  void detach() {
+    store.delete(ref);
+  }
+
+  void onDispose(VoidCallback cleanup) {
+    _cleanupCallbacks.add(cleanup);
+  }
+
+  void dispose() {
+    if (_value case final Disposable disposable) {
+      disposable.dispose();
+    }
+    for (final cleanup in _cleanupCallbacks) {
+      cleanup();
+    }
+    _cleanupCallbacks.clear();
   }
 }
 
@@ -461,7 +475,7 @@ class ProvidedNode<T> extends Node<T> implements Reader {
 }
 
 @internal
-class ComputedNode<T> extends Node<T> implements Watcher {
+class ComputedNode<T> extends Node<T> implements Watcher<T> {
   ComputedNode(this.ref, super.store);
 
   @override
@@ -487,6 +501,11 @@ class ComputedNode<T> extends Node<T> implements Watcher {
 
   @override
   void cancel<X>(Ref<X> ref) => unwatch<X>(ref);
+
+  @override
+  void it(Updater<T> update) {
+    value = update(_value);
+  }
 }
 
 @internal
