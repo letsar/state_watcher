@@ -4,7 +4,7 @@ part of 'refs.dart';
 ///
 /// Can have a parent store.
 @internal
-class StoreNode extends Store {
+class StoreNode {
   /// Creates a new [StoreNode].
   StoreNode({
     this.parent,
@@ -72,45 +72,26 @@ class StoreNode extends Store {
     _observers.addAll(observers);
   }
 
-  void watch<T>(Observed observed, Ref<T> ref) {
-    final node = _fetchOrCreateNodeFromTree(observed);
-    node.addDependency(_fetchOrCreateNodeFromTree(ref));
-  }
-
-  T trackDependencyChanges<T>(Observed observed, T Function() callback) {
-    final node = _fetchOrCreateNodeFromTree(observed);
-    node.startTrackingDependencies();
-    final result = callback();
-    node.endTrackingDependencies();
-    return result;
-  }
-
-  @override
   bool hasStateFor<T>(Ref<T> ref) {
     return _nodes.containsKey(ref.id);
   }
 
-  @override
   int get stateCount => _nodes.length;
 
-  @override
   T read<T>(Ref<T> ref) {
     final node = _fetchOrCreateNodeFromTree(ref);
     return node.value;
   }
 
-  @override
   void write<T>(Provided<T> ref, T value) {
     final node = _fetchOrCreateNodeFromTree(ref);
     node.value = value;
   }
 
-  @override
   void update<T>(Provided<T> ref, Updater<T> update) {
     write(ref, update(read(ref)));
   }
 
-  @override
   void delete<T>(Ref<T> ref) {
     if (!hasStateFor(ref)) {
       // The ref is not in this store, nothing to do.
@@ -119,8 +100,8 @@ class StoreNode extends Store {
 
     final node = _fetchOrCreateNodeFromTree(ref);
 
-    if (!_disposing && node.hasDependents) {
-      throw NodeHasDependentsError(node);
+    if (!_disposing && node.hasWatchers) {
+      throw NodeHasWatchersError(node);
     }
 
     // First we need to remove this node from its dependencies in order to
@@ -187,7 +168,7 @@ class StoreNode extends Store {
 
   void _stateCreated<T>(Node<T> node) {
     for (final observer in _observers) {
-      observer.didStateCreated(node.store, node.ref, node.value);
+      observer.didStateCreated(node.ref, node.value);
     }
     if (kDebugMode && parent == null) {
       StateInspector.instance.didStateCreated(node);
@@ -197,7 +178,7 @@ class StoreNode extends Store {
 
   void _stateUpdated<T>(Node<T> node, T oldValue, T newValue) {
     for (final observer in _observers) {
-      observer.didStateUpdated(node.store, node.ref, oldValue, newValue);
+      observer.didStateUpdated(node.ref, oldValue, newValue);
     }
 
     parent?._stateUpdated(node, oldValue, newValue);
@@ -205,7 +186,7 @@ class StoreNode extends Store {
 
   void _stateDeleted<T>(Node<T> node) {
     for (final observer in _observers) {
-      observer.didStateDeleted(node.store, node.ref);
+      observer.didStateDeleted(node.ref);
     }
     if (kDebugMode && parent == null) {
       StateInspector.instance.didStateDeleted(node);
@@ -234,10 +215,11 @@ class StoreNode extends Store {
 }
 
 @internal
-abstract class Node<T> {
+abstract class Node<T> extends BuildStore {
   Node(this.store)
       : _dependencies = {},
-        _dependents = {};
+        _dependents = {},
+        _watchers = {};
 
   final StoreNode store;
 
@@ -246,6 +228,10 @@ abstract class Node<T> {
 
   /// Nodes which depends on this node.
   final Set<Node<Object?>> _dependents;
+
+  /// Nodes which watches this node.
+  /// This is a subset of _dependents.
+  final Set<Node<Object?>> _watchers;
 
   Set<Node<Object?>>? _oldDependencies;
   bool _hasDependenciesChanged = false;
@@ -256,12 +242,19 @@ abstract class Node<T> {
     return _dependents.isNotEmpty;
   }
 
+  bool get hasWatchers {
+    return _watchers.isNotEmpty;
+  }
+
   Ref<T> get ref;
 
   static int _nextDebugId = 0;
 
   String _debugId = '';
   String get debugId => _debugId;
+
+  @override
+  int get stateCount => store.stateCount;
 
   T get value => _value;
   late T _value;
@@ -279,17 +272,21 @@ abstract class Node<T> {
     if (shouldUpdateDependents) {
       store._stateUpdated(this, oldValue, newValue);
       // We make a new list to avoid concurrent modification.
-      final dependents = _dependents.toList();
-      for (final dependent in dependents) {
-        dependent.update();
+      final watchers = _watchers.toList();
+      for (final watcher in watchers) {
+        watcher.rebuild();
       }
     }
   }
 
-  void addDependency(Node<Object?> dependency) {
+  void addDependency(Node<Object?> dependency, {required bool watch}) {
     dependency._throwIfDependsOn(this);
     _dependencies.add(dependency);
+
     final added = dependency._dependents.add(this);
+    if (watch) {
+      dependency._watchers.add(this);
+    }
     if (_oldDependencies case final oldDependencies?) {
       _hasDependenciesChanged |= added;
       oldDependencies.remove(dependency);
@@ -299,12 +296,58 @@ abstract class Node<T> {
   void removeDependency(Node<Object?> dependency) {
     _dependencies.remove(dependency);
     dependency._dependents.remove(this);
+    dependency._watchers.remove(this);
 
     if (!dependency.hasDependents && dependency.ref.autoDispose) {
       // If the dependency has no longer dependents, maybe we can remove from
       // its store.
       dependency.detach();
     }
+  }
+
+  X fetchValue<X>(Ref<X> ref, {required bool watch}) {
+    final node = store._fetchOrCreateNodeFromTree(ref);
+    addDependency(node, watch: watch);
+    return node.value;
+  }
+
+  @override
+  X read<X>(Ref<X> ref) {
+    return fetchValue(ref, watch: false);
+  }
+
+  @override
+  X watch<X>(Ref<X> ref) {
+    return fetchValue(ref, watch: true);
+  }
+
+  void unwatch<X>(Ref<X> ref) {
+    final node = store._fetchNodeFromTree(ref, create: false);
+    if (node != null) {
+      removeDependency(node);
+    }
+  }
+
+  @override
+  void write<X>(Provided<X> ref, X value) {
+    final node = store._fetchOrCreateNodeFromTree(ref);
+    addDependency(node, watch: false);
+    node.value = value;
+  }
+
+  X trackDependencyChanges<X>(X Function() callback) {
+    startTrackingDependencies();
+    final result = callback();
+    endTrackingDependencies();
+    return result;
+  }
+
+  @override
+  bool hasStateFor<X>(Ref<X> ref) => store.hasStateFor(ref);
+
+  @override
+  void delete<X>(Ref<X> ref) {
+    store.delete(ref);
   }
 
   void startTrackingDependencies() {
@@ -344,7 +387,7 @@ abstract class Node<T> {
     }
   }
 
-  void update();
+  void rebuild();
 
   void detach() {
     store.delete(ref);
@@ -374,7 +417,7 @@ abstract class Node<T> {
 }
 
 @internal
-class ProvidedNode<T> extends Node<T> {
+class ProvidedNode<T> extends Node<T> implements Reader {
   ProvidedNode(this.ref, super.store);
 
   @override
@@ -386,22 +429,19 @@ class ProvidedNode<T> extends Node<T> {
     _value = _createValue(ref);
   }
 
-  T _createValue(Provided<T> ref) {
-    X read<X>(Ref<X> ref) {
-      final node = store._fetchOrCreateNodeFromTree(ref);
-      addDependency(node);
-      return node.value;
-    }
+  @override
+  X call<X>(Ref<X> ref) => read<X>(ref);
 
-    final value = ref._create(read);
+  T _createValue(Provided<T> ref) {
+    final value = ref._create(this);
     if (value is StateLogic) {
-      value._init(store);
+      value._init(this);
     }
     return value;
   }
 
   @override
-  void update() {}
+  void rebuild() {}
 
   @override
   void updateFromOverrides(
@@ -434,36 +474,23 @@ class ComputedNode<T> extends Node<T> implements Watcher {
   }
 
   @override
-  X call<X>(Ref<X> ref) {
-    final node = store._fetchOrCreateNodeFromTree(ref);
-    addDependency(node);
-    return node.value;
-  }
-
-  @override
-  void cancel<X>(Ref<X> ref) {
-    final node = store._fetchNodeFromTree(ref, create: false);
-    if (node != null) {
-      removeDependency(node);
-    }
-  }
-
-  @override
-  void update() {
+  void rebuild() {
     value = compute();
   }
 
   T compute() {
-    startTrackingDependencies();
-    final value = ref._compute(this);
-    endTrackingDependencies();
-
-    return value;
+    return trackDependencyChanges(() => ref._compute(this));
   }
+
+  @override
+  X call<X>(Ref<X> ref) => watch<X>(ref);
+
+  @override
+  void cancel<X>(Ref<X> ref) => unwatch<X>(ref);
 }
 
 @internal
-class ObservedNode extends Node<void> {
+class ObservedNode extends Node<ObservedNode> {
   ObservedNode(this.ref, super.store);
 
   @override
@@ -472,11 +499,11 @@ class ObservedNode extends Node<void> {
   @override
   void init() {
     super.init();
-    _value = null;
+    _value = this;
   }
 
   @override
-  void update() {
+  void rebuild() {
     ref.onDependencyChanged();
     if (kDebugMode) {
       StateInspector.instance.didStateUpdated(this);
@@ -555,16 +582,16 @@ class StoreHasDependentsError extends HasDependentsError {
   }
 }
 
-/// An error throw when a node cannot be deleted because it has dependents.
-class NodeHasDependentsError extends HasDependentsError {
-  /// Creates a new [NodeHasDependentsError].
-  NodeHasDependentsError(this.node);
+/// An error throw when a node cannot be deleted because it has watchers.
+class NodeHasWatchersError extends HasDependentsError {
+  /// Creates a new [NodeHasWatchersError].
+  NodeHasWatchersError(this.node);
 
-  /// The node which has dependents.
+  /// The node which has watchers.
   final Node<Object?> node;
 
   @override
   String toString() {
-    return 'Cannot delete $node because it has ${node._dependents.length} dependents.';
+    return 'Cannot delete $node because it has ${node._watchers.length} watchers.';
   }
 }

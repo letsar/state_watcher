@@ -8,22 +8,22 @@ class DelegatedStateObserver extends StateObserver {
     this.onStateDeleted,
   });
 
-  final void Function(Store, Ref<Object?>, Object?)? onStateCreated;
-  final void Function(Store, Ref<Object?>, Object?, Object?)? onStateUpdated;
-  final void Function(Store, Ref<Object?>)? onStateDeleted;
+  final void Function(Ref<Object?>, Object?)? onStateCreated;
+  final void Function(Ref<Object?>, Object?, Object?)? onStateUpdated;
+  final void Function(Ref<Object?>)? onStateDeleted;
 
   @override
-  void didStateCreated<T>(Store store, Ref<T> ref, T value) {
-    onStateCreated?.call(store, ref, value);
+  void didStateCreated<T>(Ref<T> ref, T value) {
+    onStateCreated?.call(ref, value);
   }
 
   @override
-  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue) {
-    onStateUpdated?.call(store, ref, oldValue, newValue);
+  void didStateUpdated<T>(Ref<T> ref, T oldValue, T newValue) {
+    onStateUpdated?.call(ref, oldValue, newValue);
   }
 
   @override
-  void didStateDeleted<T>(Store store, Ref<T> ref) {
-    onStateDeleted?.call(store, ref);
+  void didStateDeleted<T>(Ref<T> ref) {
+    onStateDeleted?.call(ref);
   }
 }

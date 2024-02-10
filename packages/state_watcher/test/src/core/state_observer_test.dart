@@ -48,17 +48,17 @@ class _StateObserver extends StateObserver {
   final logs = <String>[];
 
   @override
-  void didStateCreated<T>(Store store, Ref<T> ref, T value) {
+  void didStateCreated<T>(Ref<T> ref, T value) {
     logs.add('didStateCreated ${ref.debugName} with $value');
   }
 
   @override
-  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue) {
+  void didStateUpdated<T>(Ref<T> ref, T oldValue, T newValue) {
     logs.add('didStateUpdated ${ref.debugName} from $oldValue to $newValue');
   }
 
   @override
-  void didStateDeleted<T>(Store store, Ref<T> ref) {
+  void didStateDeleted<T>(Ref<T> ref) {
     logs.add('didStateDeleted ${ref.debugName}');
   }
 

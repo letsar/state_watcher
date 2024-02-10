@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/core/state_observer.dart';
 
 import 'disposable.dart';
@@ -15,8 +16,11 @@ part 'store_node.dart';
 /// Signature for determining whether [a] and [b] are different.
 typedef AreDifferent<T> = bool Function(T a, T b);
 
-/// Signature for reading the value of a [Ref].
-typedef Reader = T Function<T>(Ref<T> ref);
+/// Objects allowing to read the value of a [Ref].
+abstract class Reader {
+  /// Reads the value of [ref].
+  T call<T>(Ref<T> ref);
+}
 
 /// Object allowing to watch and unwatch a [Ref].
 abstract class Watcher {
@@ -322,7 +326,7 @@ class Computed<T> extends Ref<T> {
 }
 
 @internal
-class Observed extends Ref<void> {
+class Observed extends Ref<ObservedNode> {
   Observed(
     VoidCallback onDependencyChanged, {
     ObservedLocation? location,
@@ -350,7 +354,7 @@ class Observed extends Ref<void> {
   final ObservedLocation? location;
 
   @override
-  Node<void> _createNode(StoreNode store) {
+  Node<ObservedNode> _createNode(StoreNode store) {
     return ObservedNode(this, store);
   }
 }
@@ -381,25 +385,3 @@ Never _undefinedProvided(Reader read) {
 
 /// Signature for updating a state.
 typedef Updater<T> = T Function(T oldValue);
-
-/// A container of states.
-abstract class Store {
-  /// Indicates whether [ref] has a value inside this [Store].
-  bool hasStateFor<T>(Ref<T> ref);
-
-  /// The number of states located in this [Store].
-  int get stateCount;
-
-  /// Reads the value of [ref] from this [Store].
-  T read<T>(Ref<T> ref);
-
-  /// Writes the [value] associated with [ref] in this [Store].
-  void write<T>(Provided<T> ref, T value);
-
-  /// Updates the value associated with [ref] in this [Store] using the
-  /// [updater].
-  void update<T>(Provided<T> ref, Updater<T> update);
-
-  /// Deletes the value associated with [ref] from this [Store].
-  void delete<T>(Ref<T> ref);
-}

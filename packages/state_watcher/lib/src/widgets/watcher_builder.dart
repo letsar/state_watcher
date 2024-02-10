@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:state_watcher/src/widgets/build_store.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/widgets/watcher_stateless_widget.dart';
 
 /// Signature for a function to build a widget when the state changes.

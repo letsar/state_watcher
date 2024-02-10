@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:state_watcher/src/widgets/build_store.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/widgets/watcher_stateful_widget.dart';
 
 /// A [StatelessWidget] which can be used to watch the changes of [Ref]s.

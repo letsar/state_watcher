@@ -2,10 +2,10 @@ part of 'refs.dart';
 
 /// Mixin to apply in order to separate the logic from the view.
 mixin StateLogic implements Disposable {
-  late final StoreNode _store;
+  late final BuildStore _store;
 
   // ignore: use_setters_to_change_properties
-  void _init(StoreNode store) {
+  void _init(BuildStore store) {
     _store = store;
   }
 

@@ -207,7 +207,7 @@ void main() {
           count++;
         });
         final a = Provided((_) => 4);
-        store.watch(o, a);
+        store.read(o).watch(a);
         expect(count, 0);
         store.write(a, 5);
         expect(count, 1);
@@ -361,7 +361,7 @@ void main() {
         final c = Computed((watch) => watch(v));
         final store = StoreNode();
         store.read(c);
-        expect(() => store.delete(v), throwsA(isA<NodeHasDependentsError>()));
+        expect(() => store.delete(v), throwsA(isA<NodeHasWatchersError>()));
       });
     });
 
