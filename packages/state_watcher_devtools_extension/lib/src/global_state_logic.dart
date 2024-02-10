@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:devtools_extensions/devtools_extensions.dart';
 import 'package:flutter/foundation.dart';
-import 'package:state_watcher/state_watcher.dart' hide Store;
+import 'package:state_watcher/state_watcher.dart';
 import 'package:state_watcher_devtools_extension/src/models.dart';
 
 const _prefix = 'ext.state_watcher';

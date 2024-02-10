@@ -19,13 +19,13 @@ class DevToolsPage extends WatcherStatefulWidget {
 
 class _DevToolsPageState extends State<DevToolsPage> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    initStore();
   }
 
-  BuildStore initStore() {
+  void initStore() {
     unawaited(store.read(refGlobalState).init());
-    return store;
   }
 
   @override

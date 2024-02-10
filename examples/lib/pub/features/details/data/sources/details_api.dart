@@ -6,7 +6,7 @@ import 'package:state_watcher/state_watcher.dart';
 final refDetailsApi = Provided((read) {
   final client = read(refApiClient);
   return DetailsApi(client: client);
-});
+}, autoDispose: true);
 
 class DetailsApi {
   const DetailsApi({

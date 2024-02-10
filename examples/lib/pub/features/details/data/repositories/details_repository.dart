@@ -5,7 +5,7 @@ import 'package:state_watcher/state_watcher.dart';
 final refDetailsRepository = Provided((read) {
   final detailsApi = read(refDetailsApi);
   return DetailsRepository(detailsApi: detailsApi);
-});
+}, autoDispose: true);
 
 class DetailsRepository {
   const DetailsRepository({

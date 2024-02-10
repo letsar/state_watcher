@@ -4,8 +4,10 @@ import 'package:examples/pub/features/details/data/repositories/details_reposito
 import 'package:state_watcher/state_watcher.dart';
 
 final refDetailsPageLogic = Provided<DetailsPageLogic>.undefined();
-final refPackageNameToMetricsScore =
-    Provided((_) => <String, PackageMetricsScore>{});
+final refPackageNameToMetricsScore = Provided(
+  (_) => <String, PackageMetricsScore>{},
+  autoDispose: true,
+);
 
 class DetailsPageLogic with StateLogic implements Loadable {
   DetailsPageLogic({
