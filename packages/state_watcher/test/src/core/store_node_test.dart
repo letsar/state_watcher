@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:state_watcher/src/core/refs.dart';
 
@@ -197,6 +199,44 @@ void main() {
           expect(c1.id == c3.id, isTrue);
         });
       });
+
+      test('should be able to redefine its value', () {
+        fakeAsync((async) {
+          final a = Computed<int>((watch) {
+            final timer = Timer.periodic(const Duration(seconds: 1), (_) {
+              watch.it((x) => x + 1);
+            });
+
+            watch.onDispose(timer.cancel);
+
+            return 0;
+          });
+          final store = StoreNode();
+
+          expect(store.read(a), 0);
+          async.elapse(const Duration(milliseconds: 500));
+          expect(store.read(a), 0);
+          async.elapse(const Duration(milliseconds: 500));
+          expect(store.read(a), 1);
+          async.elapse(const Duration(milliseconds: 1000));
+          expect(store.read(a), 2);
+        });
+      });
+
+      test('should be able to release resources', () {
+        bool disposed = false;
+        final store = StoreNode();
+        final a = Computed((watch) {
+          watch.onDispose(() {
+            disposed = true;
+          });
+          return 4;
+        });
+        expect(store.read(a), 4);
+        expect(disposed, false);
+        store.delete(a);
+        expect(disposed, true);
+      });
     });
 
     group('[Observed]', () {
@@ -207,7 +247,7 @@ void main() {
           count++;
         });
         final a = Provided((_) => 4);
-        store.watch(o, a);
+        store.read(o).watch(a);
         expect(count, 0);
         store.write(a, 5);
         expect(count, 1);
@@ -361,7 +401,7 @@ void main() {
         final c = Computed((watch) => watch(v));
         final store = StoreNode();
         store.read(c);
-        expect(() => store.delete(v), throwsA(isA<NodeHasDependentsError>()));
+        expect(() => store.delete(v), throwsA(isA<NodeHasWatchersError>()));
       });
     });
 

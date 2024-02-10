@@ -8,7 +8,7 @@ import 'package:state_watcher_devtools_extension/src/views/sections/details_sect
 import 'package:state_watcher_devtools_extension/src/views/sections/logs_section.dart';
 import 'package:state_watcher_devtools_extension/src/views/sections/states_section.dart';
 
-class DevToolsPage extends StatefulWidget {
+class DevToolsPage extends WatcherStatefulWidget {
   const DevToolsPage({
     super.key,
   });
@@ -18,23 +18,19 @@ class DevToolsPage extends StatefulWidget {
 }
 
 class _DevToolsPageState extends State<DevToolsPage> {
-  Store? store;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    store ??= initStore();
   }
 
-  Store initStore() {
-    final store = StateStore.of(context, listen: false);
+  BuildStore initStore() {
     unawaited(store.read(refGlobalState).init());
     return store;
   }
 
   @override
   void dispose() {
-    store?.delete(refGlobalState);
+    store.delete(refGlobalState);
     super.dispose();
   }
 

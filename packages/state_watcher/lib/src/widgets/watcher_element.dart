@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/core/refs.dart';
-import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
 
 @internal
@@ -78,7 +78,7 @@ mixin WatcherElement on ComponentElement {
 
   @override
   Widget build() {
-    return store.trackDependencyChanges(observed, super.build);
+    return store.read(observed).trackDependencyChanges(super.build);
   }
 }
 
@@ -93,9 +93,8 @@ class _BuildStore implements BuildStore {
       element.debugDoingBuild,
       'Cannot watch the state outside of the build method.',
     );
-    final store = element.store;
-    store.watch(element.observed, ref);
-    return store.read(ref);
+    final store = element.store.read(element.observed);
+    return store.watch(ref);
   }
 
   @override
@@ -126,11 +125,11 @@ class _BuildStore implements BuildStore {
     return fetchStore('delete').delete(ref);
   }
 
-  Store fetchStore(String methodName) {
+  BuildStore fetchStore(String methodName) {
     assert(
       !element.debugDoingBuild,
       'The store.$methodName method cannot be called during build',
     );
-    return element.store;
+    return element.store.read(element.observed);
   }
 }

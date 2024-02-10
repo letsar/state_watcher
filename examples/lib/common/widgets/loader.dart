@@ -2,7 +2,7 @@ import 'package:examples/common/loadable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:state_watcher/state_watcher.dart';
 
-class Loader extends StatefulWidget {
+class Loader extends WatcherStatefulWidget {
   const Loader({
     super.key,
     required this.refs,
@@ -31,7 +31,6 @@ class _LoaderState extends State<Loader> {
   }
 
   Future<void> load() async {
-    final store = StateStore.of(context, listen: false);
     await Future.wait(widget.refs.map((x) => store.read(x).load()));
   }
 

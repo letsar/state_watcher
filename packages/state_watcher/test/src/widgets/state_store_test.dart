@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/core/refs.dart';
 import 'package:state_watcher/src/core/state_observer.dart';
-import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
 import 'package:state_watcher/src/widgets/watcher_builder.dart';
 
@@ -264,21 +264,6 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     });
-
-    testWidgets('of should be callable ', (tester) async {
-      late Store store;
-      final tree = StateStore(
-        child: Builder(
-          builder: (context) {
-            store = StateStore.of(context);
-            return const SizedBox();
-          },
-        ),
-      );
-      await tester.pumpWidget(tree);
-      expect(tester.takeException(), isNull);
-      expect(store, isNotNull);
-    });
   });
 }
 
@@ -288,7 +273,7 @@ class _StateObserver extends StateObserver {
   final logs = <String>[];
 
   @override
-  void didStateCreated<T>(Store store, Ref<T> ref, T value) {
+  void didStateCreated<T>(Ref<T> ref, T value) {
     if (ref.id != a.id) {
       return;
     }
@@ -296,7 +281,7 @@ class _StateObserver extends StateObserver {
   }
 
   @override
-  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue) {
+  void didStateUpdated<T>(Ref<T> ref, T oldValue, T newValue) {
     if (ref.id != a.id) {
       return;
     }
@@ -304,7 +289,7 @@ class _StateObserver extends StateObserver {
   }
 
   @override
-  void didStateDeleted<T>(Store store, Ref<T> ref) {
+  void didStateDeleted<T>(Ref<T> ref) {
     if (ref.id != a.id) {
       return;
     }

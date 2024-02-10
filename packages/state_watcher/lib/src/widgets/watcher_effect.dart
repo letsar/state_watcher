@@ -41,7 +41,7 @@ class WatcherEffect<T> extends WatcherStatefulWidget {
 class _WatcherEffectState<T> extends State<WatcherEffect<T>> {
   bool initialized = false;
   late T oldValue;
-  Computed<void>? computed;
+  late Computed<void> computed;
 
   @override
   void initState() {
@@ -50,9 +50,6 @@ class _WatcherEffectState<T> extends State<WatcherEffect<T>> {
   }
 
   void initComputed() {
-    if (computed case final computed?) {
-      store.delete(computed);
-    }
     final newComputed = Computed(
       (watch) {
         final newValue = watch(widget.ref);
@@ -72,7 +69,6 @@ class _WatcherEffectState<T> extends State<WatcherEffect<T>> {
     );
     // Read the ref to create the computed.
     computed = newComputed;
-    store.read<void>(newComputed);
   }
 
   @override
@@ -86,14 +82,13 @@ class _WatcherEffectState<T> extends State<WatcherEffect<T>> {
 
   @override
   void dispose() {
-    if (computed case final computed?) {
-      store.delete(computed);
-    }
+    store.delete(computed);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    store.watch(computed);
     return widget.child ?? const SizedBox.shrink();
   }
 }

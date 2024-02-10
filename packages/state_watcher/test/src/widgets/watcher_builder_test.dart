@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/core/refs.dart';
-import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
 import 'package:state_watcher/src/widgets/watcher_builder.dart';
 import 'package:state_watcher/src/widgets/watcher_stateful_widget.dart';
@@ -46,7 +46,7 @@ void main() {
         final b = Computed((watch) => watch(a));
         bool removed = false;
         final observer = DelegatedStateObserver(
-          onStateDeleted: (store, ref) {
+          onStateDeleted: (ref) {
             if (ref == b) {
               removed = true;
             }
@@ -81,10 +81,10 @@ void main() {
         });
         final removed = <Ref<Object?>>{};
         final observer = DelegatedStateObserver(
-          onStateCreated: (store, ref, _) {
+          onStateCreated: (ref, _) {
             removed.remove(ref);
           },
-          onStateDeleted: (store, ref) {
+          onStateDeleted: (ref) {
             removed.add(ref);
           },
         );

@@ -27,11 +27,6 @@ class StateStore extends StatefulWidget {
   /// The child widget.
   final Widget child;
 
-  /// Gets the [Store] of the closest [StateStore] ancestor.
-  static Store of(BuildContext context, {bool listen = true}) {
-    return dependOnParentStore(context, listen: listen);
-  }
-
   @override
   State<StateStore> createState() => _StateStoreState();
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:state_watcher/src/core/build_store.dart';
 import 'package:state_watcher/src/core/refs.dart';
-import 'package:state_watcher/src/widgets/build_store.dart';
 import 'package:state_watcher/src/widgets/state_store.dart';
 import 'package:state_watcher/src/widgets/watcher_builder.dart';
 import 'package:state_watcher/src/widgets/watcher_effect.dart';
