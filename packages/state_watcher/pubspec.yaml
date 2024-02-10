@@ -3,7 +3,7 @@ description: "A simple, yet powerful reactive state management solution for Flut
 repository:  https://github.com/letsar/state_watcher
 documentation: https://letsar.github.io/state_watcher
 homepage: https://github.com/letsar/state_watcher
-version: 0.0.7
+version: 0.1.0
 
 topics:
   - state-management

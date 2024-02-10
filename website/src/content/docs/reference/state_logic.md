@@ -10,8 +10,8 @@ We saw how to update our widgets and our refs, but it would be better if we coul
 In **state_watcher** we can do it by creating a `Provided` with an object applying a specific mixin called `StateLogic`:
 
 ```dart
-final refCounter = Provided((_) => 0);
-final refCounterStateLogic = Provided((_) => CounterStateLogic());
+final _refCounter = Provided((_) => 0);
+final _refCounterStateLogic = Provided((_) => CounterStateLogic());
 
 class CounterStateLogic with StateLogic {
   void incrementCounter() {
@@ -27,7 +27,7 @@ class _IncrementButton extends WatcherStatelessWidget {
     return FloatingActionButton(
       tooltip: 'Increment',
       onPressed: () {
-        store.read(refCounterStateLogic).incrementCounter();
+        store.read(_refCounterStateLogic).incrementCounter();
       },
       child: const Icon(Icons.add),
     );

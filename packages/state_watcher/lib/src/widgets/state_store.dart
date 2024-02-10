@@ -90,10 +90,10 @@ StoreNode dependOnParentStore(BuildContext context, {bool listen = true}) {
   assert(() {
     if (storeNode == null) {
       throw FlutterError(
-        '$StateStore.of() was called with a context that does not have access '
+        '$dependOnParentStore() was called with a context that does not have access '
         'to a $StateStore widget.\n'
         'No $StateStore ancestor could be found starting from the context that '
-        'was passed to $StateStore.of().\n'
+        'was passed to $dependOnParentStore().\n'
         'The context used was:\n'
         '  $context',
       );

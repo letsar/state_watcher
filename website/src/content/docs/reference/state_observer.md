@@ -14,21 +14,21 @@ class MyObserver extends StateObserver {
   const MyObserver();
 
   @override
-  void didStateCreated<T>(Store store, Ref<T> ref, T value) {
+  void didStateCreated<T>(Ref<T> ref, T value) {
     if (kDebugMode) {
       print('[MyObserver] didStateCreated: $ref with value: $value}');
     }
   }
 
   @override
-  void didStateUpdated<T>(Store store, Ref<T> ref, T oldValue, T newValue) {
+  void didStateUpdated<T>(Ref<T> ref, T oldValue, T newValue) {
     if (kDebugMode) {
       print('[MyObserver] didStateUpdated: $ref: from $oldValue to $newValue');
     }
   }
 
   @override
-  void didStateDeleted<T>(Store store, Ref<T> ref) {
+  void didStateDeleted<T>(Ref<T> ref) {
     if (kDebugMode) {
       print('[MyObserver] didStateUpdated: $ref');
     }

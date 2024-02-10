@@ -241,7 +241,6 @@ void main() {
         expect(buildStore.hasStateFor(_computedWithParam(2)), isTrue);
       });
     });
-
     group('should not be rebuilt when', () {
       testWidgets('a ref no longer watched is updated', (tester) async {
         final a = Provided((_) => 0);
@@ -368,6 +367,83 @@ void main() {
         await tester.pumpWidget(tree);
         await tester.tap(find.byType(GestureDetector));
         expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('should dispose an autoDispose ref when widget disposed',
+          (tester) async {
+        final a = Provided((_) => 0, autoDispose: true);
+        late BuildStore buildStore;
+        await tester.pumpWidget(
+          StateStore(
+            key: const ValueKey(1),
+            child: WatcherBuilder(
+              builder: (context, store) {
+                buildStore = store;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    store.read(a);
+                  },
+                  child: const SizedBox.expand(),
+                );
+              },
+            ),
+          ),
+        );
+        await tester.tap(find.byType(GestureDetector));
+        expect(buildStore.hasStateFor(a), true);
+
+        await tester.pumpWidget(
+          const StateStore(
+            key: ValueKey(1),
+            child: SizedBox(),
+          ),
+        );
+
+        expect(buildStore.hasStateFor(a), false);
+      });
+
+      testWidgets('should dispose a chain of refs when widget disposed',
+          (tester) async {
+        final a = Provided((_) => 0, autoDispose: true);
+        final refMyLogic = Provided((_) => _MyLogic(a), autoDispose: true);
+
+        late BuildStore buildStore;
+        await tester.pumpWidget(
+          StateStore(
+            key: const ValueKey(1),
+            child: WatcherBuilder(
+              builder: (context, store) {
+                buildStore = store;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    store.read(refMyLogic).readRef();
+                  },
+                  child: const SizedBox.expand(),
+                );
+              },
+            ),
+          ),
+        );
+
+        expect(buildStore.hasStateFor(a), false);
+        expect(buildStore.hasStateFor(refMyLogic), false);
+
+        await tester.tap(find.byType(GestureDetector));
+
+        expect(buildStore.hasStateFor(a), true);
+        expect(buildStore.hasStateFor(refMyLogic), true);
+
+        await tester.pumpWidget(
+          const StateStore(
+            key: ValueKey(1),
+            child: SizedBox(),
+          ),
+        );
+
+        expect(buildStore.hasStateFor(a), false);
+        expect(buildStore.hasStateFor(refMyLogic), false);
       });
     });
     group('write', () {
@@ -546,6 +622,43 @@ void main() {
         expect(buildStore.stateCount, 1);
       });
     });
+    group('disposing', () {
+      testWidgets(
+        'should dispose observed when removed from tree',
+        (tester) async {
+          final deleted = <Ref<Object?>>{};
+          final observer = DelegatedStateObserver(
+            onStateDeleted: (ref) {
+              deleted.add(ref);
+            },
+          );
+
+          await tester.pumpWidget(
+            StateStore(
+              key: const ValueKey(1),
+              observers: [observer],
+              child: WatcherBuilder(
+                builder: (context, store) {
+                  return const SizedBox();
+                },
+              ),
+            ),
+          );
+
+          expect(deleted, isEmpty);
+
+          await tester.pumpWidget(
+            StateStore(
+              key: const ValueKey(1),
+              observers: [observer],
+              child: const SizedBox(),
+            ),
+          );
+
+          expect(deleted, hasLength(1));
+        },
+      );
+    });
   });
 }
 
@@ -592,5 +705,14 @@ class _StatefulState extends State<_Stateful> {
   @override
   Widget build(BuildContext context) {
     return widget.builder(context, store);
+  }
+}
+
+class _MyLogic<T> with StateLogic {
+  _MyLogic(this.ref);
+  final Ref<T> ref;
+
+  T readRef() {
+    return read(ref);
   }
 }

@@ -1,3 +1,17 @@
+## [0.1.0] 
+### Added
+- An `onDispose` method from the arg passed to `Provided` and `Computed` callback.
+- An `it` method to the arg passed to `Computed` callbak in order to be able to update its value.
+  
+### Changed
+- How dependencies are computed. Now every time you read a state, a dependency is created from where it is called. This is useful to be able to automatically dispose refs.
+- Renamed `NodeHasDependentsError` to `NodeHasWatchersError`.
+
+### Removed
+- `StateStore.of` method since we can get a `BuildStore` from a `WatcherStatefulWidget`.
+- `Store` interface, since only `BuildStore` is needed.
+-  The `store` parameter in all methods of `StateObserver`.
+
 ## [0.0.7] 
 ### Added
 - A `global` parameter for `Computed` for making its state stored in the root store.
